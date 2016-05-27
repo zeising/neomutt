@@ -8,7 +8,10 @@ set smime_is_default
 
 # Uncomment this if you don't want to set labels for certificates you add.
 # unset smime_ask_cert_label
-
+ 
+# Uncomment this if you don't want to check for sender's email address
+# set smime_dont_check_sender = yes
+  
 # Passphrase expiration
 set smime_timeout=300
 

@@ -3265,6 +3265,15 @@ struct option_t MuttVars[] = {
   ** the \fCshare/examples/mutt/\fP subdirectory which has been installed on
   ** your system. (S/MIME only)
   */
+  { "smime_dont_check_sender",	DT_BOOL, R_NONE, OPTSMIMENOSENDER, 0 },
+  /*
+  ** .pp
+  ** This flag controls wether you want the skip the check for the sender's
+  ** email address against the email address stored in the certificate. 
+  ** This can be useful if most of your email senders use SMIMEv3 which no
+  ** longer needs email-addresses as part of the certificates.
+  ** It is not set by default.
+  */
   { "smime_decrypt_use_default_key",	DT_BOOL, R_NONE, OPTSDEFAULTDECRYPTKEY, 1 },
   /*
   ** .pp
