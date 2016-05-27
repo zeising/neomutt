@@ -32,7 +32,7 @@ mutt_SOURCES = \
 	edit.c enter.c flags.c init.c filter.c from.c \
 	getdomain.c group.c \
 	handler.c hash.c hdrline.c headers.c help.c hook.c keymap.c \
-	main.c mbox.c menu.c mh.c mx.c pager.c parse.c pattern.c \
+	main.c mbox.c menu.c mh.c mx.c opennfs.c pager.c parse.c pattern.c \
 	postpone.c query.c recvattach.c recvcmd.c \
 	rfc822.c rfc1524.c rfc2047.c rfc2231.c rfc3676.c \
 	score.c send.c sendlib.c signal.c sort.c \
@@ -97,7 +97,7 @@ mutt_dotlock_SOURCES = mutt_dotlock.c
 mutt_dotlock_LDADD = $(LIBOBJS)
 mutt_dotlock_DEPENDENCIES = $(LIBOBJS)
 
-pgpring_SOURCES = pgppubring.c pgplib.c lib.c extlib.c sha1.c md5.c pgppacket.c ascii.c
+pgpring_SOURCES = pgppubring.c pgplib.c lib.c extlib.c sha1.c opennfs.c md5.c pgppacket.c ascii.c
 pgpring_LDADD = $(LIBOBJS) $(INTLLIBS)
 pgpring_DEPENDENCIES = $(LIBOBJS) $(INTLDEPS)
 

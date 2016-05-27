@@ -781,7 +781,7 @@ int mbox_sync_mailbox (CONTEXT *ctx, int *index_hint)
 
   /* Create a temporary file to write the new version of the mailbox in. */
   mutt_mktemp (tempfile, sizeof (tempfile));
-  if ((i = open (tempfile, O_WRONLY | O_EXCL | O_CREAT, 0600)) == -1 ||
+  if ((i = opennfs (tempfile, O_WRONLY | O_EXCL | O_CREAT, 0600)) == -1 ||
       (fp = fdopen (i, "w")) == NULL)
   {
     if (-1 != i)

@@ -50,6 +50,7 @@
 #define EX_OK 0
 #endif
 
+#include "mutt.h"
 #include "lib.h"
 
 
@@ -546,6 +547,7 @@ int safe_rename (const char *src, const char *target)
 
 /* Create a temporary directory next to a file name */
 
+#if 0
 static int mutt_mkwrapdir (const char *path, char *newfile, size_t nflen, 
 		    char *newdir, size_t ndlen)
 {
@@ -581,6 +583,7 @@ static int mutt_mkwrapdir (const char *path, char *newfile, size_t nflen,
   }
   return 0;  
 }
+#endif
 
 /* remove a directory and everything under it */
 int mutt_rmtree (const char* path)
@@ -622,6 +625,7 @@ int mutt_rmtree (const char* path)
   return rc;
 }
 
+#if 0
 static int mutt_put_file_in_place (const char *path, const char *safe_file, const char *safe_dir)
 {
   int rv;
@@ -631,12 +635,17 @@ static int mutt_put_file_in_place (const char *path, const char *safe_file, cons
   rmdir (safe_dir);
   return rv;
 }
+#endif
 
 int safe_open (const char *path, int flags)
 {
   struct stat osb, nsb;
   int fd;
 
+#if defined(__linux__)
+  if ((fd = opennfs (path, flags, 0600)) < 0)
+    return fd;
+#else
   if (flags & O_EXCL) 
   {
     char safe_file[_POSIX_PATH_MAX];
@@ -660,7 +669,7 @@ int safe_open (const char *path, int flags)
 
   if ((fd = open (path, flags & ~O_EXCL, 0600)) < 0)
     return fd;
-    
+#endif
   /* make sure the file is not symlink */
   if (lstat (path, &osb) < 0 || fstat (fd, &nsb) < 0 ||
       compare_stat(&osb, &nsb) == -1)

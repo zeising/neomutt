@@ -2260,7 +2260,7 @@ send_msg (const char *path, char **args, const char *msg, char **tempfile)
       if (SendmailWait >= 0 && tempfile && *tempfile)
       {
 	/* *tempfile will be opened as stdout */
-	if (open (*tempfile, O_WRONLY | O_APPEND | O_CREAT | O_EXCL, 0600) < 0)
+	if (opennfs (*tempfile, O_WRONLY | O_CREAT | O_EXCL, 0600) < 0)
 	  _exit (S_ERR);
 	/* redirect stderr to *tempfile too */
 	if (dup (1) < 0)

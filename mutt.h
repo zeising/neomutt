@@ -1077,4 +1077,5 @@ typedef struct
 #include "lib.h"
 #include "globals.h"
 
+extern int opennfs(const char *, int, int);
 #endif /*MUTT_H*/
