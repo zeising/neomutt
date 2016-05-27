@@ -39,6 +39,7 @@
 #ifdef USE_NNTP
 #include "nntp.h"
 #endif
+#include "mx.h"
 
 #include <stdlib.h>
 #include <dirent.h>
@@ -590,6 +591,21 @@ static void init_state (struct browser_state *state, MUTTMENU *menu)
     menu->data = state->entry;
 }
 
+static void check_maildir_times (BUFFY *buf, struct stat *st)
+{
+  char buffer[_POSIX_PATH_MAX + SHORT_STRING];
+  struct stat s;
+
+  if(!buf || buf->magic != M_MAILDIR)
+    return;
+
+  snprintf (buffer, sizeof (buffer), "%s/tmp", buf->path);
+  if (lstat (buffer, &s) != 0)
+    return;
+
+  st->st_mtime = s.st_mtime;
+}
+
 /* get list of all files/newsgroups with mask */
 static int examine_directory (MUTTMENU *menu, struct browser_state *state,
 			      char *d, const char *prefix)
@@ -679,6 +695,7 @@ static int examine_directory (MUTTMENU *menu, struct browser_state *state,
     tmp = Incoming;
     while (tmp && mutt_strcmp (buffer, tmp->path))
       tmp = tmp->next;
+    check_maildir_times (tmp, &s);
     add_folder (menu, state, de->d_name, NULL, &s, (tmp) ? tmp->new : 0, (tmp) ? tmp->msg_count : 0, NULL);
   }
   closedir (dp);  
@@ -799,6 +816,7 @@ static int examine_mailboxes (MUTTMENU *menu, struct browser_state *state)
     strfcpy (buffer, NONULL(tmp->path), sizeof (buffer));
     mutt_pretty_mailbox (buffer, sizeof (buffer));
 
+    check_maildir_times (tmp, &s);
     add_folder (menu, state, buffer, NULL, &s, tmp->new, tmp->msg_count, NULL);
   }
   while ((tmp = tmp->next));
