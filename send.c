@@ -624,8 +624,16 @@ int mutt_fetch_recips (ENVELOPE *out, ENVELOPE *in, int flags)
     if ((flags & SENDGROUPREPLY) && (!in->mail_followup_to || hmfupto != M_YES))
     {
       /* if(!mutt_addr_is_user(in->to)) */
+      if (option (OPTSENDGROUPREPLYTO))
+      {
+	rfc822_append (&out->to, in->to, 0);
+	rfc822_append (&out->cc, in->cc, 1);
+      }	  
+      else
+      {
       rfc822_append (&out->cc, in->to, 1);
       rfc822_append (&out->cc, in->cc, 1);
+      }
     }
   }
   return 0;

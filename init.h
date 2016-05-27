@@ -2885,6 +2885,13 @@ struct option_t MuttVars[] = {
   ** .pp
   ** Also see the $$force_name variable.
   */
+  { "send_group_reply_to",	DT_BOOL, R_NONE, OPTSENDGROUPREPLYTO, 0 },
+  /*
+  ** .pp
+  ** This variable controls how group replies are done.
+  ** When set, all recepients listet in "To:" are set in the
+  ** "To:" header again, else in the "CC", which is the default.
+  */
   { "score", 		DT_BOOL, R_NONE, OPTSCORE, 1 },
   /*
   ** .pp
