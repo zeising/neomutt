@@ -1261,7 +1261,8 @@ BODY *pgp_sign_message (BODY *a)
   t->disposition = DISPNONE;
   t->encoding = ENC7BIT;
   t->unlink = 1; /* ok to remove this file after sending. */
-  mutt_set_parameter ("name", "signature.asc", &t->parameter);
+  mutt_set_parameter ("name", PgpMimeSignatureFilename, &t->parameter);
+  t->description = safe_strdup (PgpMimeSignatureDescription);
 
   return (a);
 }

@@ -20,4 +20,5 @@ patch-status-color-neo-git
 patch-timeout-neo-git
 patch-tls-sni-neo-git
 patch-trash-neo-git
-+patch-1.5.9.aw.listreply.1
+patch-1.5.9.aw.listreply.1
+patch-1.5.3.vk.pgp_verbose_mime
