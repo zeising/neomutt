@@ -3290,7 +3290,7 @@ struct option_t MuttVars[] = {
   ** possible \fCprintf(3)\fP-like sequences.
   ** (S/MIME only)
   */
-  { "smime_encrypt_self",		DT_QUAD,	 R_NONE, OPT_SMIMEENCRYPTSELF, M_NO },
+  { "smime_encrypt_self",		DT_QUAD,	 R_NONE, OPT_SMIMEENCRYPTSELF, M_YES },
   /*
   ** .pp
   ** Encrypt the message to $$smime_default_key too.
