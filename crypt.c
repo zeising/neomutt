@@ -506,7 +506,7 @@ int mutt_is_application_smime (BODY *m)
     {
       len++;
       if (!ascii_strcasecmp ((t+len), "p7m"))
-#if 0
+#if 1
        return SMIMEENCRYPT;
 #else
       /* Not sure if this is the correct thing to do, but 
