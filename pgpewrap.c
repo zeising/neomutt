@@ -58,6 +58,10 @@ int main(int argc, char **argv) {
 	}
 	*opt = NULL;
 
+	if (opts[0] == NULL) {
+		fprintf(stderr, "Command line usage: %s [flags] -- prefix [recipients]\n", argv[0]);
+		return 1;
+	}
 	execvp(opts[0], opts);
 	perror(argv[0]);
 	return 2;
