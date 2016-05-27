@@ -3330,8 +3330,8 @@ void mutt_init (int skip_sys_rc, LIST *commands)
     MailcapPath = safe_strdup (p);
   else
   {
-    /* Default search path from RFC1524 */
-    MailcapPath = safe_strdup ("~/.mailcap:" PKGDATADIR "/mailcap:" SYSCONFDIR "/mailcap:/etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap");
+    /* Default search path from RFC1524 plus fallback for mutt specific defaults */
+    MailcapPath = safe_strdup ("~/.mailcap:" PKGDATADIR "/mailcap:" SYSCONFDIR "/mailcap:/etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap:" SYSCONFDIR "/mutt/mailcap");
   }
 
   Tempdir = safe_strdup ((p = getenv ("TMPDIR")) ? p : "/tmp");
