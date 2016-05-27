@@ -2077,9 +2077,8 @@ struct option_t MuttVars[] = {
   ** .pp
   ** For examples on how to configure these formats for the various versions
   ** of PGP which are floating around, see the pgp and gpg sample configuration files in
-  ** the \fCsamples/\fP subdirectory which has been installed on your system
-  ** alongside the documentation.
-  ** (PGP only)
+  ** the \fCshare/examples/mutt/\fP subdirectory which has been installed on
+  **  your system. (PGP only)
   */
   { "pgp_decrypt_command", 	DT_STR, R_NONE, UL &PgpDecryptCommand, 0},
   /*
@@ -3263,9 +3262,8 @@ struct option_t MuttVars[] = {
   ** .de
   ** .pp
   ** For examples on how to configure these formats, see the \fCsmime.rc\fP in
-  ** the \fCsamples/\fP subdirectory which has been installed on your system
-  ** alongside the documentation.
-  ** (S/MIME only)
+  ** the \fCshare/examples/mutt/\fP subdirectory which has been installed on
+  ** your system. (S/MIME only)
   */
   { "smime_decrypt_use_default_key",	DT_BOOL, R_NONE, OPTSDEFAULTDECRYPTKEY, 1 },
   /*

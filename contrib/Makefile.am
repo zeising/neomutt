@@ -1,6 +1,7 @@
 # $Id$
 
 subdir = contrib
+samplesdir = @samplesdir@
 
 SAMPLES = Mush.rc Pine.rc gpg.rc pgp2.rc pgp6.rc Tin.rc \
 	sample.muttrc  sample.mailcap sample.muttrc-tlr \
@@ -18,12 +19,12 @@ EXTRA_DIST = language.txt language50.txt  \
 CONTRIB_DIRS = vim-keybindings keybase
 
 install-data-local:
-	$(INSTALL) -d -m 755 $(DESTDIR)$(docdir)/samples $(DESTDIR)$(docdir)/samples/iconv
+	$(MKDIR_P) $(DESTDIR)$(samplesdir) $(DESTDIR)$(samplesdir)/iconv
 	for f in $(SAMPLES) ; do \
-		$(INSTALL) -m 644 $(srcdir)/$$f $(DESTDIR)$(docdir)/samples ;	\
+		$(INSTALL) -m 644 $(srcdir)/$$f $(DESTDIR)$(samplesdir) ;	\
 	done
 	for f in $(srcdir)/iconv/*.rc ; do					\
-		$(INSTALL) -m 644 $$f $(DESTDIR)$(docdir)/samples/iconv	  ;	\
+		$(INSTALL) -m 644 $$f $(DESTDIR)$(samplesdir)/iconv  ;		\
 	done
 	for d in $(CONTRIB_DIRS); do						\
 		echo "Installing $$d" ;	\

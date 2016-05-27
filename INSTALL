@@ -228,13 +228,13 @@ If you decide to use your system's iconv implementation, you may
 need to tell mutt about implementation-defined names for some
 character sets.  Sample configuration files for various systems can
 be found in the directory contrib/iconv/ in this source
-distribution, and will be installed in the samples/iconv directory
+distribution, and will be installed in the share/examples/mutt/iconv directory
 as part of mutt's documentation.
 
 In order to use these sample configuration files, just put a line
 like
 
-     source /usr/local/doc/mutt/samples/iconv/iconv.osf1-4.0d.rc
+     source /usr/local/share/examples/mutt/iconv/iconv.osf1-4.0d.rc
 
 into your system's global Muttrc, which normally resides in /etc or
 /usr/local/etc.
