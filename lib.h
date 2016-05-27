@@ -197,6 +197,7 @@ int mutt_copy_bytes (FILE *, FILE *, size_t);
 int mutt_rx_sanitize_string (char *, size_t, const char *);
 int mutt_strcasecmp (const char *, const char *);
 int mutt_strcmp (const char *, const char *);
+int mutt_strxcmp (const char *, const char *);
 int mutt_strncasecmp (const char *, const char *, size_t);
 int mutt_strncmp (const char *, const char *, size_t);
 int mutt_strcoll (const char *, const char *);

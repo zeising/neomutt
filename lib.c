@@ -884,6 +884,18 @@ int mutt_strcmp(const char *a, const char *b)
   return strcmp(NONULL(a), NONULL(b));
 }
 
+int mutt_strxcmp(const char *a, const char *b)
+{
+  size_t xa, xb;
+  xa = strcspn(NONULL(a), "\r\n");
+  xb = strcspn(NONULL(b), "\r\n");
+  if (xb != xa)
+    return -1;
+  if (!xa)
+    return 0;
+  return strncmp(NONULL(a), NONULL(b), xa);
+}
+
 int mutt_strcasecmp(const char *a, const char *b)
 {
   return strcasecmp(NONULL(a), NONULL(b));

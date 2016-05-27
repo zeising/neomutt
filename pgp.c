@@ -302,7 +302,7 @@ static void pgp_copy_clearsigned (FILE *fpin, STATE *s, char *charset)
       continue;
     }
 
-    if (mutt_strcmp (buf, "-----BEGIN PGP SIGNATURE-----\n") == 0)
+    if (mutt_strxcmp (buf, "-----BEGIN PGP SIGNATURE-----\n") == 0)
       break;
     
     if (armor_header)
@@ -368,14 +368,14 @@ int pgp_application_pgp_handler (BODY *m, STATE *s)
     {
       clearsign = 0;
 
-      if (mutt_strcmp ("MESSAGE-----\n", buf + 15) == 0)
+      if (mutt_strxcmp ("MESSAGE-----\n", buf + 15) == 0)
         needpass = 1;
-      else if (mutt_strcmp ("SIGNED MESSAGE-----\n", buf + 15) == 0)
+      else if (mutt_strxcmp ("SIGNED MESSAGE-----\n", buf + 15) == 0)
       {
 	clearsign = 1;
         needpass = 0;
       }
-      else if (!mutt_strcmp ("PUBLIC KEY BLOCK-----\n", buf + 15))
+      else if (!mutt_strxcmp ("PUBLIC KEY BLOCK-----\n", buf + 15))
       {
         needpass = 0;
         pgp_keyblock = 1;
@@ -408,10 +408,10 @@ int pgp_application_pgp_handler (BODY *m, STATE *s)
 	
 	fputs (buf, tmpfp);
 
-	if ((needpass && mutt_strcmp ("-----END PGP MESSAGE-----\n", buf) == 0) ||
+	if ((needpass && mutt_strxcmp ("-----END PGP MESSAGE-----\n", buf) == 0) ||
 	    (!needpass 
-             && (mutt_strcmp ("-----END PGP SIGNATURE-----\n", buf) == 0
-                 || mutt_strcmp ("-----END PGP PUBLIC KEY BLOCK-----\n",buf) == 0)))
+             && (mutt_strxcmp ("-----END PGP SIGNATURE-----\n", buf) == 0
+                 || mutt_strxcmp ("-----END PGP PUBLIC KEY BLOCK-----\n",buf) == 0)))
 	  break;
 	/* remember optional Charset: armor header as defined by RfC4880 */
 	if (mutt_strncmp ("Charset: ", buf, 9) == 0)
@@ -645,11 +645,11 @@ static int pgp_check_traditional_one_body (FILE *fp, BODY *b, int tagged_only)
   {
     if (mutt_strncmp ("-----BEGIN PGP ", buf, 15) == 0)
     {
-      if (mutt_strcmp ("MESSAGE-----\n", buf + 15) == 0)
+      if (mutt_strxcmp ("MESSAGE-----\n", buf + 15) == 0)
 	enc = 1;
-      else if (mutt_strcmp ("SIGNED MESSAGE-----\n", buf + 15) == 0)
+      else if (mutt_strxcmp ("SIGNED MESSAGE-----\n", buf + 15) == 0)
 	sgn = 1;
-      else if (mutt_strcmp ("PUBLIC KEY BLOCK-----\n", buf + 15) == 0)
+      else if (mutt_strxcmp ("PUBLIC KEY BLOCK-----\n", buf + 15) == 0)
 	key = 1;
     }
   }
@@ -1197,9 +1197,9 @@ BODY *pgp_sign_message (BODY *a)
    */
   while (fgets (buffer, sizeof (buffer) - 1, pgpout) != NULL)
   {
-    if (mutt_strcmp ("-----BEGIN PGP MESSAGE-----\n", buffer) == 0)
+    if (mutt_strxcmp ("-----BEGIN PGP MESSAGE-----\n", buffer) == 0)
       fputs ("-----BEGIN PGP SIGNATURE-----\n", fp);
-    else if (mutt_strcmp("-----END PGP MESSAGE-----\n", buffer) == 0)
+    else if (mutt_strxcmp("-----END PGP MESSAGE-----\n", buffer) == 0)
       fputs ("-----END PGP SIGNATURE-----\n", fp);
     else
       fputs (buffer, fp);
