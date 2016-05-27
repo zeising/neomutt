@@ -1501,6 +1501,13 @@ struct option_t MuttVars[] = {
   ** The locale used by \fCstrftime(3)\fP to format dates. Legal values are
   ** the strings your system accepts for the locale environment variable \fC$$$LC_TIME\fP.
   */
+  { "list_reply",	DT_QUAD, R_NONE, OPT_LISTREPLY, M_NO },
+  /*
+  ** .pp
+  ** When set, address replies to the mailing list the original message came
+  ** from (instead to the author only).  Setting this option to ``ask-yes'' or
+  ** ``ask-no'' will ask if you really intended to reply to the author only.
+  */
   { "mail_check",	DT_NUM,  R_NONE, UL &BuffyTimeout, 5 },
   /*
   ** .pp

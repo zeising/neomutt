@@ -315,6 +315,7 @@ enum
 #endif
   OPT_SUBJECT,
   OPT_VERIFYSIG,      /* verify PGP signatures */
+  OPT_LISTREPLY,
 #ifdef USE_NNTP
   OPT_TOMODERATED,
   OPT_CATCHUP,
