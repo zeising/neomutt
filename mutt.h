@@ -216,6 +216,7 @@ enum
   M_LIMIT,
   M_EXPIRED,
   M_SUPERSEDED,
+  M_THREADCOMPLETE,
 
   /* actions for mutt_pattern_comp/mutt_pattern_exec */
   M_AND,

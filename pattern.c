@@ -61,6 +61,7 @@ static const struct pattern_flags
 }
 Flags[] =
 {
+  { 'a', M_THREADCOMPLETE,	0,		NULL },
   { 'A', M_ALL,			0,		NULL },
   { 'b', M_BODY,		M_FULL_MSG,	eat_regexp },
   { 'B', M_WHOLE_MSG,		M_FULL_MSG,	eat_regexp },
@@ -1300,6 +1301,16 @@ pattern_exec (struct pattern_t *pat, pattern_exec_flag flags, CONTEXT *ctx, HEAD
                                              2, h->env->to, h->env->cc));
     case M_LIST:	/* known list, subscribed or not */
       return (pat->not ^ mutt_is_list_cc (pat->alladdr, h->env->to, h->env->cc));
+    case M_THREADCOMPLETE:
+      { static pattern_t tmp;
+        static short pattern_set = 0;
+        if(! pattern_set) {
+          memset (&tmp, 0, sizeof (tmp));
+          tmp.op = M_TAG;
+          pattern_set = 1;
+        }
+        return (pat->not ^ (h->env && match_threadcomplete(&tmp, flags, ctx, h->thread, 1, 1, 1, 1)));
+      } 
     case M_SUBSCRIBED_LIST:
       return (pat->not ^ mutt_is_list_recipient (pat->alladdr, h->env->to, h->env->cc));
     case M_PERSONAL_RECIP:
