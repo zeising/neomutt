@@ -2841,6 +2841,13 @@ struct option_t MuttVars[] = {
   ** possibly including eventual real names.  When it is \fIunset\fP, mutt will
   ** override any such real names with the setting of the $$realname variable.
   */
+  { "reverse_reply",	DT_BOOL, R_NONE, OPTREVREPLY, 0 },
+  /*
+  ** .pp
+  ** When set, this variable uses the name from your aliases in the To and Cc
+  ** headers of reply mails you send, like $reverse_alias does in the index.
+  ** When unset, the headers taken from the original mail are left unchanged.
+  */
   { "rfc2047_parameters", DT_BOOL, R_NONE, OPTRFC2047PARAMS, 0 },
   /*
   ** .pp

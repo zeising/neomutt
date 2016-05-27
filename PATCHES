@@ -21,3 +21,4 @@ patch-timeout-neo-git
 patch-tls-sni-neo-git
 patch-trash-neo-git
 vvv.quote
+patch-1.5.6.cb.reverse_reply.2

@@ -2756,6 +2756,35 @@ static void set_noconv_flags (BODY *b, short flag)
   }
 }
 
+/* given a list of addresses, return a list of reverse_alias'ed addresses */
+ADDRESS *mutt_reverse_address (ADDRESS *addr)
+{
+  ADDRESS *top,*tmp,*alias;
+
+  if (addr == NULL)
+    return NULL;
+
+  if ((alias = alias_reverse_lookup (addr)) && alias->personal) {
+    tmp = rfc822_cpy_adr_real(alias);
+    tmp->next = addr->next;
+    addr->next = NULL;
+    rfc822_free_address(&addr);
+    addr = tmp;
+  }
+
+  for (top = addr; top->next != NULL; top = tmp) {
+    tmp = top->next;
+    if ((alias = alias_reverse_lookup (tmp)) && alias->personal) {
+      top->next = rfc822_cpy_adr_real(alias);
+      top->next->next = tmp->next;
+      tmp->next = NULL;
+      rfc822_free_address(&tmp);
+      tmp = top->next;
+    }
+  }
+  return addr;
+}
+
 /* Handle a Fcc with multiple, comma separated entries. */
 int mutt_write_multiple_fcc (const char *path, HEADER *hdr, const char *msgid,
         int post, char *fcc, char **finalpath)

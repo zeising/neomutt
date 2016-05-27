@@ -665,6 +665,10 @@ void mutt_fix_reply_recipients (ENVELOPE *env)
   /* the CC field can get cluttered, especially with lists */
   env->to = mutt_remove_duplicates (env->to);
   env->cc = mutt_remove_duplicates (env->cc);
+  if (option (OPTREVREPLY)){
+	env->to = mutt_reverse_address (env->to);
+	env->cc = mutt_reverse_address (env->cc);
+  }
   env->cc = mutt_remove_xrefs (env->to, env->cc);
   
   if (env->cc && !env->to)
