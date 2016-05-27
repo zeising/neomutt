@@ -184,10 +184,6 @@ install-exec-hook:
 
 install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(sysconfdir)
-	$(INSTALL) -m 644 $(srcdir)/mime.types $(DESTDIR)$(sysconfdir)/mime.types.dist
-	-if [ ! -f $(DESTDIR)$(sysconfdir)/mime.types ]; then \
-		$(INSTALL) -m 644 $(srcdir)/mime.types $(DESTDIR)$(sysconfdir); \
-	fi
 
 uninstall-local:
 	for i in mime.types ; do \
