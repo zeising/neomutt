@@ -290,7 +290,7 @@ int imap_read_headers (IMAP_DATA* idata, int msgbegin, int msgend)
         continue;
       }
       /* May receive FLAGS updates in a separate untagged response (#2935) */
-      if (idx < ctx->msgcount)
+      if (ctx->hdrs[idx] != NULL)
       {
 	dprint (2, (debugfile, "imap_read_headers: message %d is not new\n",
 		    h.sid));
