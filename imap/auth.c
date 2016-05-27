@@ -72,6 +72,23 @@ int imap_authenticate (IMAP_DATA* idata)
       dprint (2, (debugfile, "imap_authenticate: Trying method %s\n", method));
       authenticator = imap_authenticators;
 
+#ifdef USE_SASL
+      /* "login" not supported by SASL */
+      if (!ascii_strcasecmp ("login", method))
+      {
+	while (authenticator->authenticate)
+	{
+	  const char *identify = authenticator->method;
+	  if (identify && !ascii_strcasecmp(identify, method))
+	    if ((r = authenticator->authenticate(idata, method)) != IMAP_AUTH_UNAVAIL)
+	    {
+	      FREE(&methods);
+	      return r;
+	    }
+	  authenticator++;
+	}
+      } else {
+#endif
       while (authenticator->authenticate)
       {
 	if (!authenticator->method ||
@@ -85,6 +102,9 @@ int imap_authenticate (IMAP_DATA* idata)
 	
 	authenticator++;
       }
+#ifdef USE_SASL
+      }
+#endif
     }
 
     FREE (&methods);

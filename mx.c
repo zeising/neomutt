@@ -1829,6 +1829,9 @@ void mx_update_context (CONTEXT *ctx, int new_messages)
   {
     h = ctx->hdrs[msgno];
 
+    if (!h)
+      continue;
+
     if (WithCrypto)
     {
       /* NOTE: this _must_ be done before the check for mailcap! */

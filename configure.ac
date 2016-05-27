@@ -275,7 +275,7 @@ main ()
                         mutt_cv_slang=$withval
                         if test -d $withval/include/slang; then
                                 CPPFLAGS="$CPPFLAGS -I${withval}/include/slang"
-                        elif test -d $withval/include; then
+                        elif test -d $withval/include && test $withval != /usr ; then
                                 CPPFLAGS="$CPPFLAGS -I${withval}/include"
                         fi
                         LDFLAGS="$LDFLAGS -L${withval}/lib"
@@ -716,8 +716,12 @@ AC_ARG_WITH(ssl, AS_HELP_STRING([--with-ssl@<:@=PFX@:>@],[Enable TLS support usi
 	  else
             if test "$with_ssl" != "yes"
             then
+	     case $withval in /usr|/usr/local) ;;
+	     *)
              LDFLAGS="$LDFLAGS -L$withval/lib"
              CPPFLAGS="$CPPFLAGS -I$withval/include"
+	     ;;
+	     esac
             fi
             saved_LIBS="$LIBS"
 
@@ -796,8 +800,12 @@ AC_ARG_WITH(sasl, AS_HELP_STRING([--with-sasl@<:@=PFX@:>@],[Use SASL network sec
 
           if test "$with_sasl" != "yes"
           then
+	    case $with_sasl in /usr|/usr/local) ;;
+	    *)
             CPPFLAGS="$CPPFLAGS -I$with_sasl/include"
             LDFLAGS="$LDFLAGS -L$with_sasl/lib"
+	    ;;
+	    esac
           fi
 
           saved_LIBS="$LIBS"

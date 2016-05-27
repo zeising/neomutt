@@ -3596,6 +3596,9 @@ struct option_t MuttVars[] = {
   ** the default from the GNUTLS library.
   */
 # endif /* USE_SSL_GNUTLS */
+#if defined(USE_IMAP) && defined(SUSE_IMAP_FORCE_SSL)
+  { "imap_force_ssl",	DT_SYN,	R_NONE, UL "ssl_force_tls", 0 },
+#endif
   { "ssl_starttls", DT_QUAD, R_NONE, OPT_SSLSTARTTLS, M_YES },
   /*
   ** .pp
