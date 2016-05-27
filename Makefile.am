@@ -13,7 +13,7 @@ endif
 if QUICK_BUILD
 SUBDIRS = $(IMAP_SUBDIR)
 else
-SUBDIRS = m4 po intl doc contrib $(IMAP_SUBDIR)
+SUBDIRS = m4 po intl contrib $(IMAP_SUBDIR) . doc
 endif
 
 bin_SCRIPTS = $(SMIMEAUX_TARGET)
