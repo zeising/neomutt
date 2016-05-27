@@ -4047,7 +4047,8 @@ struct option_t MuttVars[] = {
   ** When \fIset\fP, mutt will weed headers when displaying, forwarding,
   ** printing, or replying to messages.
   */
-  { "wrap",             DT_NUM,  R_PAGER, UL &Wrap, 0 },
+  { "wrap",		DT_NUM,  R_PAGER, UL &Wrap, 0 },
+  { "wrapcolumn",	DT_SYN,  R_NONE, UL "wrap", 0 },
   /*
   ** .pp
   ** When set to a positive value, mutt will wrap text at $$wrap characters.
