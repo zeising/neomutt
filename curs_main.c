@@ -1848,9 +1848,17 @@ int mutt_index_menu (void)
 	  }
 	  else
 #endif
+	{
+	  if (option (OPTCHANGEFOLDERNEXT) && Context && Context->path)
+	  {
+	    strfcpy (buf, Context->path, sizeof (buf));
+	    mutt_pretty_mailbox (buf, sizeof(buf));
+	  }
+
 	  /* By default, fill buf with the next mailbox that contains unread
 	   * mail */
 	  mutt_buffy (buf, sizeof (buf));
+	}
 
           if (mutt_enter_fname (cp, buf, sizeof (buf), &menu->redraw, 1) == -1)
           {

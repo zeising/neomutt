@@ -1,3 +1,5 @@
+fg.change_folder_next
+patch-1.5.4.lpr.collapse_flagged Lukas P. Ruf <lukas.ruf@lpr.ch>
 patch-attach-headers-color-neomutt
 patch-compress-neomutt
 patch-cond-date-neomutt
@@ -25,5 +27,4 @@ patch-smime-encrypt-self-neomutt
 patch-status-color-neomutt
 patch-timeout-neomutt
 patch-tls-sni-neomutt
-patch-1.5.4.lpr.collapse_flagged Lukas P. Ruf <lukas.ruf@lpr.ch>
 vvv.quote

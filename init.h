@@ -418,6 +418,13 @@ struct option_t MuttVars[] = {
   ** mailbox by performing a fast mailbox scan when it is defined.
   ** Afterwards the new mail status is tracked by file size changes.
   */
+  { "change_folder_next", DT_BOOL, R_NONE, OPTCHANGEFOLDERNEXT, 0 },
+  /*
+  ** .pp
+  ** When this variable is set, the change-folder command will start at the
+  ** next folder after the current folder in your mailbox list instead of
+  ** starting at the first folder.
+  */
   { "check_new",	DT_BOOL, R_NONE, OPTCHECKNEW, 1 },
   /*
   ** .pp
