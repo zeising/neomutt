@@ -460,11 +460,11 @@ int mutt_add_to_rx_list (RX_LIST **list, const char *s, int flags, BUFFER *err)
   return 0;
 }
 
-static int remove_from_spam_list (SPAM_LIST **list, const char *pat);
+static int remove_from_replace_list (REPLACE_LIST **list, const char *pat);
 
-static int add_to_spam_list (SPAM_LIST **list, const char *pat, const char *templ, BUFFER *err)
+static int add_to_replace_list (REPLACE_LIST **list, const char *pat, const char *templ, BUFFER *err)
 {
-  SPAM_LIST *t = NULL, *last = NULL;
+  REPLACE_LIST *t = NULL, *last = NULL;
   REGEXP *rx;
   int n;
   const char *p;
@@ -497,12 +497,12 @@ static int add_to_spam_list (SPAM_LIST **list, const char *pat, const char *temp
       break;
   }
 
-  /* If t is set, it's pointing into an extant SPAM_LIST* that we want to
+  /* If t is set, it's pointing into an extant REPLACE_LIST* that we want to
    * update. Otherwise we want to make a new one to link at the list's end.
    */
   if (!t)
   {
-    t = mutt_new_spam_list();
+    t = mutt_new_replace_list();
     t->rx = rx;
     if (last)
       last->next = t;
@@ -510,7 +510,7 @@ static int add_to_spam_list (SPAM_LIST **list, const char *pat, const char *temp
       *list = t;
   }
 
-  /* Now t is the SPAM_LIST* that we want to modify. It is prepared. */
+  /* Now t is the REPLACE_LIST* that we want to modify. It is prepared. */
   t->template = safe_strdup(templ);
 
   /* Find highest match number in template string */
@@ -531,9 +531,9 @@ static int add_to_spam_list (SPAM_LIST **list, const char *pat, const char *temp
 
   if (t->nmatch > t->rx->rx->re_nsub)
   {
-    snprintf (err->data, err->dsize, _("Not enough subexpressions for spam "
+    snprintf (err->data, err->dsize, _("Not enough subexpressions for "
                                        "template"));
-    remove_from_spam_list(list, pat);
+    remove_from_replace_list(list, pat);
     return -1;
   }
 
@@ -542,38 +542,38 @@ static int add_to_spam_list (SPAM_LIST **list, const char *pat, const char *temp
   return 0;
 }
 
-static int remove_from_spam_list (SPAM_LIST **list, const char *pat)
+static int remove_from_replace_list (REPLACE_LIST **list, const char *pat)
 {
-  SPAM_LIST *spam, *prev;
+  REPLACE_LIST *cur, *prev;
   int nremoved = 0;
 
   /* Being first is a special case. */
-  spam = *list;
-  if (!spam)
+  cur = *list;
+  if (!cur)
     return 0;
-  if (spam->rx && !mutt_strcmp(spam->rx->pattern, pat))
+  if (cur->rx && !mutt_strcmp(cur->rx->pattern, pat))
   {
-    *list = spam->next;
-    mutt_free_regexp(&spam->rx);
-    FREE(&spam->template);
-    FREE(&spam);
+    *list = cur->next;
+    mutt_free_regexp(&cur->rx);
+    FREE(&cur->template);
+    FREE(&cur);
     return 1;
   }
 
-  prev = spam;
-  for (spam = prev->next; spam;)
+  prev = cur;
+  for (cur = prev->next; cur;)
   {
-    if (!mutt_strcmp(spam->rx->pattern, pat))
+    if (!mutt_strcmp(cur->rx->pattern, pat))
     {
-      prev->next = spam->next;
-      mutt_free_regexp(&spam->rx);
-      FREE(&spam->template);
-      FREE(&spam);
-      spam = prev->next;
+      prev->next = cur->next;
+      mutt_free_regexp(&cur->rx);
+      FREE(&cur->template);
+      FREE(&cur);
+      cur = prev->next;
       ++nremoved;
     }
     else
-      spam = spam->next;
+      cur = cur->next;
   }
 
   return nremoved;
@@ -830,6 +830,103 @@ static int parse_unalternates (BUFFER *buf, BUFFER *s, unsigned long data, BUFFE
   return 0;
 }
 
+static int parse_replace_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *err)
+{
+  REPLACE_LIST **list = (REPLACE_LIST **)data;
+  BUFFER templ;
+
+  memset(&templ, 0, sizeof(templ));
+
+  /* First token is a regexp. */
+  if (!MoreArgs(s))
+  {
+    strfcpy(err->data, _("not enough arguments"), err->dsize);
+    return -1;
+  }
+  mutt_extract_token(buf, s, 0);
+
+  /* Second token is a replacement template */
+  if (!MoreArgs(s))
+  {
+    strfcpy(err->data, _("not enough arguments"), err->dsize);
+    return -1;
+  }
+  mutt_extract_token(&templ, s, 0);
+
+  if (add_to_replace_list(list, buf->data, templ.data, err) != 0) {
+    FREE(&templ.data);
+    return -1;
+  }
+  FREE(&templ.data);
+
+  return 0;
+}
+
+static int parse_unreplace_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *err)
+{
+  REPLACE_LIST **list = (REPLACE_LIST **)data;
+
+  /* First token is a regexp. */
+  if (!MoreArgs(s))
+  {
+    strfcpy(err->data, _("not enough arguments"), err->dsize);
+    return -1;
+  }
+
+  mutt_extract_token(buf, s, 0);
+  if (mutt_strcmp ("*", buf->data) == 0)
+  {
+    REPLACE_LIST *cur = *list;
+    while (cur != NULL)
+    {
+      *list = cur->next;
+      if (cur->rx)
+      {
+	mutt_free_regexp(&cur->rx);
+	FREE(&cur->template);
+	FREE(&cur);
+      }
+      cur = *list;
+    }
+  } else
+    remove_from_replace_list(list, buf->data);
+  return 0;
+}
+
+
+static void clear_subject_mods (void)
+{
+  int i;
+  if (Context && Context->msgcount) 
+  {
+    for (i = 0; i < Context->msgcount; i++)
+      FREE(&Context->hdrs[i]->env->disp_subj);
+  }
+}
+
+
+static int parse_subjectrx_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *err)
+{
+  int rc;
+
+  rc = parse_replace_list(buf, s, data, err);
+  if (rc == 0)
+    clear_subject_mods();
+  return rc;
+}
+
+
+static int parse_unsubjectrx_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *err)
+{
+  int rc;
+
+  rc = parse_unreplace_list(buf, s, data, err);
+  if (rc == 0)
+    clear_subject_mods();
+  return rc;
+}
+
+
 static int parse_spam_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *err)
 {
   BUFFER templ;
@@ -858,7 +955,7 @@ static int parse_spam_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *
       mutt_extract_token (&templ, s, 0);
 
       /* Add to the spam list. */
-      if (add_to_spam_list (&SpamList, buf->data, templ.data, err) != 0) {
+      if (add_to_replace_list (&SpamList, buf->data, templ.data, err) != 0) {
 	  FREE(&templ.data);
           return -1;
       }
@@ -882,13 +979,13 @@ static int parse_spam_list (BUFFER *buf, BUFFER *s, unsigned long data, BUFFER *
     /* "*" is a special case. */
     if (!mutt_strcmp(buf->data, "*"))
     {
-      mutt_free_spam_list (&SpamList);
+      mutt_free_replace_list (&SpamList);
       mutt_free_rx_list (&NoSpamList);
       return 0;
     }
 
     /* If it's on the spam list, just remove it. */
-    if (remove_from_spam_list(&SpamList, buf->data) != 0)
+    if (remove_from_replace_list(&SpamList, buf->data) != 0)
       return 0;
 
     /* Otherwise, add it to the nospam list. */

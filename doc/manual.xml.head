@@ -4679,6 +4679,58 @@ spam "^From: .*MAILER-DAEMON"       "999"
 
 </sect1>
 
+<sect1 id="subjrepl">
+<title>Altering the Display Subject</title>
+
+<para>
+In today's world of e-mail automation, Subject: headers often turn up
+with redundant, machine-generated text that provides no information
+useful to you as a reader, but consumes screen space.  To reduce
+the effect of this trend, you can use the <literal>subjectrx</literal>
+and <literal>unsubjectrx</literal> commands to apply regular expression
+transformations to your Subject: headers.
+</para>
+
+<para>
+<literallayout>
+Usage: <literal>subjectrx</literal> <emphasis>regex</emphasis> <emphasis>replace</emphasis>
+Usage: <literal>unsubjectrx</literal> <emphasis>regex</emphasis>
+</literallayout>
+</para>
+
+<para>
+<literal>subjectrx</literal> creates a new subject transformation.  Wherever
+the <emphasis>regex</emphasis> appears in a Subject: header, it will
+be replaced with <emphasis>replace</emphasis> for the index view only. 
+The actual subject of the message is not changed, as you'll see when
+you view, edit, or reply to the message.  The <emphasis>replace</emphasis>
+string can contain certain substitution tokens: &percnt;L for the part of
+the subject to the left of the regex, &percnt;R for the part to the right,
+and &percnt;1, &percnt;2, etc. for successive subexpressions.  The
+<emphasis>replace</emphasis> text replaces the <emphasis>entire</emphasis>
+subject, not just the matching part.
+</para>
+
+<para>
+<literal>unsubjectrx</literal> removes a <emphasis>regex</emphasis> from
+the list of transformations in use.
+</para>
+
+
+<para>
+Example: At my office we use the RT ticketing system for handling 
+customer and internal projects.  RT inserts a prefix on each Subject:
+header which it uses to associate e-mail to a ticket.  It's critical
+that this be present in the mail, but it's wasteful on my index screen.
+This <literal>subjectrx</literal> command hides it from view:
+<screen>
+subjectrx "\\[rt #[0-9]+\\] *" "%L%R"
+</screen>
+</para>
+
+</sect1>
+
+
 <sect1 id="set">
 <title>Setting and Querying Variables</title>
 

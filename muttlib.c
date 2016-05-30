@@ -738,6 +738,7 @@ void mutt_free_envelope (ENVELOPE **p)
   FREE (&(*p)->list_post);
   FREE (&(*p)->subject);
   /* real_subj is just an offset to subject and shouldn't be freed */
+  FREE (&(*p)->disp_subj);
   FREE (&(*p)->message_id);
   FREE (&(*p)->supersedes);
   FREE (&(*p)->date);
@@ -795,8 +796,10 @@ void mutt_merge_envelopes(ENVELOPE* base, ENVELOPE** extra)
   {
     base->subject = (*extra)->subject;
     base->real_subj = (*extra)->real_subj;
+    base->disp_subj = (*extra)->disp_subj;
     (*extra)->subject = NULL;
     (*extra)->real_subj = NULL;
+    (*extra)->disp_subj = NULL;
   }
   /* spam and user headers should never be hashed, and the new envelope may
     * have better values. Use new versions regardless. */
@@ -2026,9 +2029,9 @@ void mutt_free_rx_list (RX_LIST **list)
   }
 }
 
-void mutt_free_spam_list (SPAM_LIST **list)
+void mutt_free_replace_list (REPLACE_LIST **list)
 {
-  SPAM_LIST *p;
+  REPLACE_LIST *p;
   
   if (!list) return;
   while (*list)
@@ -2064,7 +2067,7 @@ int mutt_match_rx_list (const char *s, RX_LIST *l)
  *
  * Returns 1 if the argument `s` matches a pattern in the spam list, otherwise
  * 0. */
-int mutt_match_spam_list (const char *s, SPAM_LIST *l, char *text, int textsize)
+int mutt_match_spam_list (const char *s, REPLACE_LIST *l, char *text, int textsize)
 {
   static regmatch_t *pmatch = NULL;
   static int nmatch = 0;

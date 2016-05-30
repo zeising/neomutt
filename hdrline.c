@@ -235,6 +235,91 @@ int mutt_user_is_recipient (HEADER *h)
   return h->recipient;
 }
 
+static char *apply_subject_mods (ENVELOPE *env)
+{
+  REPLACE_LIST *l;
+  static regmatch_t *pmatch = NULL;
+  static int nmatch = 0;
+  static char twinbuf[2][LONG_STRING];
+  int switcher = 0;
+  char *p;
+  int i, n;
+  int tlen = 0;
+  char *src, *dst;
+
+  if (env == NULL)
+    return NULL;
+
+  if (SubjectRxList == NULL || env->subject == NULL)
+    return env->subject;
+
+  src = twinbuf[switcher];
+  dst = src;
+
+  strncpy(src, env->subject, LONG_STRING-1);
+  src[LONG_STRING-1] = '\0';
+
+  for (l = SubjectRxList; l; l = l->next)
+  {
+    /* If this pattern needs more matches, expand pmatch. */
+    if (l->nmatch > nmatch)
+    {
+      safe_realloc (&pmatch, l->nmatch * sizeof(regmatch_t));
+      nmatch = l->nmatch;
+    }
+
+    if (regexec (l->rx->rx, src, l->nmatch, pmatch, 0) == 0)
+    {
+      tlen = 0;
+      switcher ^= 1;
+      dst = twinbuf[switcher];
+
+      dprint (5, (debugfile, "apply_subject_mods: %s matches %s\n", src, l->rx->pattern));
+
+      /* Copy into other twinbuf with substitutions */
+      if (l->template)
+      {
+        for (p = l->template; *p; )
+        {
+	  if (*p == '%')
+	  {
+	    p++;
+	    if (*p == 'L')
+	    {
+	      p++;
+	      strncpy(&dst[tlen], src, pmatch[0].rm_so);
+	      tlen += pmatch[0].rm_so;
+	    }
+	    else if (*p == 'R')
+	    {
+	      p++;
+	      strncpy(&dst[tlen], &src[pmatch[0].rm_eo], LONG_STRING-tlen-1);
+	      tlen += strlen(src) - pmatch[0].rm_eo;
+	    }
+	    else
+	    {
+	      n = atoi(++p);                        /* get subst number */
+	      while (isdigit((unsigned char)*p))    /* skip subst token */
+                ++p;
+	      for (i = pmatch[n].rm_so; (i < pmatch[n].rm_eo) && (tlen < LONG_STRING-1); i++)
+	        dst[tlen++] = src[i];
+	    }
+	  }
+	  else
+	    dst[tlen++] = *p++;
+        }
+      }
+      dst[tlen] = '\0';
+      dprint (5, (debugfile, "apply_subject_mods: subst %s\n", dst));
+    }
+    src = dst;
+  }
+
+  env->disp_subj = safe_strdup(dst);
+  return env->disp_subj;
+}
+
+
 /* %a = address of author
  * %A = reply-to address (if present; otherwise: address of author
  * %b = filename of the originating folder
@@ -768,25 +853,27 @@ hdr_format_str (char *dest,
       break;
 
     case 's':
-      
-      if (flags & MUTT_FORMAT_TREE && !hdr->collapsed)
       {
-	if (flags & MUTT_FORMAT_FORCESUBJ)
+	char *subj;
+        if (hdr->env->disp_subj)
+	  subj = hdr->env->disp_subj;
+	else if (SubjectRxList)
+	  subj = apply_subject_mods(hdr->env);
+	else
+	  subj = hdr->env->subject;
+	if (flags & MUTT_FORMAT_TREE && !hdr->collapsed)
 	{
-	  colorlen = add_index_color (dest, destlen, flags, MT_COLOR_INDEX_SUBJECT);
-	  mutt_format_s (dest + colorlen, destlen - colorlen, "", NONULL (hdr->env->subject));
-	  add_index_color (dest + colorlen, destlen - colorlen, flags, MT_COLOR_INDEX);
-	  snprintf (buf2, sizeof (buf2), "%s%s", hdr->tree, dest);
-	  mutt_format_s_tree (dest, destlen, prefix, buf2);
+	  if (flags & MUTT_FORMAT_FORCESUBJ)
+	  {
+	    mutt_format_s (dest, destlen, "", NONULL (subj));
+	    snprintf (buf2, sizeof (buf2), "%s%s", hdr->tree, dest);
+	    mutt_format_s_tree (dest, destlen, prefix, buf2);
+	  }
+	  else
+	    mutt_format_s_tree (dest, destlen, prefix, hdr->tree);
 	}
 	else
-	  mutt_format_s_tree (dest, destlen, prefix, hdr->tree);
-      }
-      else
-      {
-	colorlen = add_index_color (dest, destlen, flags, MT_COLOR_INDEX_SUBJECT);
-	mutt_format_s (dest + colorlen, destlen - colorlen, prefix, NONULL (hdr->env->subject));
-	add_index_color (dest + colorlen, destlen - colorlen, flags, MT_COLOR_INDEX);
+	  mutt_format_s (dest, destlen, prefix, NONULL (subj));
       }
       break;
 

@@ -350,7 +350,7 @@ int mutt_is_valid_mailbox (const char *);
 int mutt_link_threads (HEADER *, HEADER *, CONTEXT *);
 int mutt_lookup_mime_type (BODY *, const char *);
 int mutt_match_rx_list (const char *, RX_LIST *);
-int mutt_match_spam_list (const char *, SPAM_LIST *, char *, int);
+int mutt_match_spam_list (const char *, REPLACE_LIST *, char *, int);
 int mutt_messages_in_thread (CONTEXT *, HEADER *, int);
 int mutt_multi_choice (char *prompt, char *letters);
 int mutt_needs_mailcap (BODY *);

@@ -639,20 +639,20 @@ typedef struct rx_list_t
   struct rx_list_t *next;
 } RX_LIST;
 
-typedef struct spam_list_t
+typedef struct replace_list_t
 {
   REGEXP *rx;
   int     nmatch;
   char   *template;
-  struct spam_list_t *next;
-} SPAM_LIST;
+  struct replace_list_t *next;
+} REPLACE_LIST;
 
 #define mutt_new_list() safe_calloc (1, sizeof (LIST))
 #define mutt_new_rx_list() safe_calloc (1, sizeof (RX_LIST))
-#define mutt_new_spam_list() safe_calloc (1, sizeof (SPAM_LIST))
+#define mutt_new_replace_list() safe_calloc (1, sizeof (REPLACE_LIST))
 void mutt_free_list (LIST **);
 void mutt_free_rx_list (RX_LIST **);
-void mutt_free_spam_list (SPAM_LIST **);
+void mutt_free_replace_list (REPLACE_LIST **);
 LIST *mutt_copy_list (LIST *);
 int mutt_matches_ignore (const char *, LIST *);
 
@@ -689,6 +689,7 @@ typedef struct envelope
   char *list_post;		/* this stores a mailto URL, or nothing */
   char *subject;
   char *real_subj;		/* offset of the real subject */
+  char *disp_subj;		/* display subject (modified copy of subject) */
   char *message_id;
   char *supersedes;
   char *date;
