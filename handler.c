@@ -1582,7 +1582,31 @@ static int text_plain_handler (BODY *b, STATE *s)
 	buf[--l] = 0;
     }
     if (s->prefix)
-      state_puts (s->prefix, s);
+    {
+      int i;
+      int offset = 0;
+      regmatch_t pmatch[1];
+
+      if (regexec ((regex_t *) QuoteRegexp.rx, &buf[offset], 1, pmatch, 0) == 0)
+	offset += pmatch->rm_eo;
+
+      if (option (OPTQUOTEQUOTED) && offset)
+      {
+	for (i = 0; i < offset; i++)
+	{
+	  state_putc (buf[i], s);
+	  if (buf[i] == ' ')
+	    break;
+	}
+      }
+      else
+      {
+	for (i = 0; buf[i] != '\0' && iswspace (buf[i]); i++)
+	  ;
+	if (option (OPTQUOTEEMPTY) || buf[i])
+	  state_puts (s->prefix, s);
+      }
+    }
     state_puts (buf, s);
     state_putc ('\n', s);
   }
@@ -1769,7 +1793,7 @@ int mutt_body_handler (BODY *b, STATE *s)
        */
       if ((WithCrypto & APPLICATION_PGP) && mutt_is_application_pgp (b))
 	handler = crypt_pgp_application_pgp_handler;
-      else if (option(OPTREFLOWTEXT) && ascii_strcasecmp ("flowed", mutt_get_parameter ("format", b->parameter)) == 0)
+      else if (option(OPTREFLOWTEXT) && ascii_strcasecmp ("flowed", mutt_get_parameter ("format", b->parameter)) == 0 && !s->prefix)
 	handler = rfc3676_handler;
       else
 	handler = text_plain_handler;

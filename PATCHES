@@ -26,3 +26,4 @@ patch-status-color-neomutt
 patch-timeout-neomutt
 patch-tls-sni-neomutt
 patch-1.5.4.lpr.collapse_flagged Lukas P. Ruf <lukas.ruf@lpr.ch>
+vvv.quote
