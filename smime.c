@@ -1756,7 +1756,8 @@ int smime_verify_one (BODY *sigbdy, STATE *s, const char *tempfile)
     return -1;
   }
   
-  crypt_current_time (s, "OpenSSL");
+  if (option (OPTPGPDISPLSIG))
+    crypt_current_time (s, "OpenSSL");
   
   if ((thepid = smime_invoke_verify (NULL, &smimeout, NULL, 
 				   -1, -1, fileno (smimeerr),
@@ -1786,10 +1787,12 @@ int smime_verify_one (BODY *sigbdy, STATE *s, const char *tempfile)
   
   fflush (smimeerr);
   rewind (smimeerr);
-  mutt_copy_stream (smimeerr, s->fpout);
+  if (option (OPTPGPDISPLSIG))
+    mutt_copy_stream (smimeerr, s->fpout);
   safe_fclose (&smimeerr);
     
-  state_attach_puts (_("[-- End of OpenSSL output --]\n\n"), s);
+  if (option (OPTPGPDISPLSIG))
+    state_attach_puts (_("[-- End of OpenSSL output --]\n\n"), s);
   
   mutt_unlink (signedfile);
   mutt_unlink (smimeerrfile);
@@ -1906,7 +1909,7 @@ static BODY *smime_handle_entity (BODY *m, STATE *s, FILE *outFile)
     fflush (smimeerr);
     rewind (smimeerr);
     
-    if ((c = fgetc (smimeerr)) != EOF)
+    if ((c = fgetc (smimeerr)) != EOF && option (OPTPGPDISPLSIG))
     {
       ungetc (c, smimeerr);
       

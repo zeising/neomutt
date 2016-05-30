@@ -209,15 +209,18 @@ static int pgp_copy_checksig (FILE *fpin, FILE *fpout)
       
       if (strncmp (line, "[GNUPG:] ", 9) == 0)
 	continue;
-      fputs (line, fpout);
-      fputc ('\n', fpout);
+      if (option (OPTPGPDISPLSIG)) {
+	fputs (line, fpout);
+	fputc ('\n', fpout);
+      }
     }
     FREE (&line);
   }
   else
   {
     dprint (2, (debugfile, "pgp_copy_checksig: No pattern.\n"));
-    mutt_copy_stream (fpin, fpout);
+    if (option (OPTPGPDISPLSIG))
+      mutt_copy_stream (fpin, fpout);
     rv = 1;
   }
 
@@ -462,7 +465,8 @@ int pgp_application_pgp_handler (BODY *m, STATE *s)
 
 	  if (s->flags & MUTT_DISPLAY)
 	  {
-	    crypt_current_time (s, "PGP");
+	    if (option (OPTPGPDISPLSIG))
+	      crypt_current_time (s, "PGP");
 	    rc = pgp_copy_checksig (pgperr, s->fpout);
 	  }
 	  
@@ -480,7 +484,8 @@ int pgp_application_pgp_handler (BODY *m, STATE *s)
 	     */
 	    if (rc == -1 || rv) maybe_goodsig = 0;
 	    
-	    state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
+	    if (option (OPTPGPDISPLSIG))
+	      state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
 	  }
 	  if (pgp_use_gpg_agent())
 	    mutt_need_hard_redraw ();
@@ -724,7 +729,8 @@ int pgp_verify_one (BODY *sigbdy, STATE *s, const char *tempfile)
     return -1;
   }
   
-  crypt_current_time (s, "PGP");
+  if (option (OPTPGPDISPLSIG))
+    crypt_current_time (s, "PGP");
   
   if((thepid = pgp_invoke_verify (NULL, &pgpout, NULL, 
 				   -1, -1, fileno(pgperr),
@@ -749,7 +755,8 @@ int pgp_verify_one (BODY *sigbdy, STATE *s, const char *tempfile)
 
   safe_fclose (&pgperr);
 
-  state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
+  if (option (OPTPGPDISPLSIG))
+    state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
 
   mutt_unlink (sigfile);
   mutt_unlink (pgperrfile);
@@ -961,7 +968,8 @@ BODY *pgp_decrypt_part (BODY *a, STATE *s, FILE *fpout, BODY *p)
       p->goodsig = 1;
     else
       p->goodsig = 0;
-    state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
+    if (option (OPTPGPDISPLSIG))
+      state_attach_puts (_("[-- End of PGP output --]\n\n"), s);
   }
   safe_fclose (&pgperr);
 
@@ -1092,7 +1100,7 @@ int pgp_encrypted_handler (BODY *a, STATE *s)
     return -1;
   }
 
-  if (s->flags & MUTT_DISPLAY) crypt_current_time (s, "PGP");
+  if (s->flags & MUTT_DISPLAY && option (OPTPGPDISPLSIG)) crypt_current_time (s, "PGP");
 
   if ((tattach = pgp_decrypt_part (a, s, fpout, a)) != NULL)
   {

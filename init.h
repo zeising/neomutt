@@ -2409,6 +2409,14 @@ struct option_t MuttVars[] = {
   ** possible \fCprintf(3)\fP-like sequences.
   ** (PGP only)
   */
+  { "pgp_display_signature",  DT_BOOL, R_NONE, OPTPGPDISPLSIG, 1},
+  /*
+  ** .pp
+  ** If \fIset\fP, mutt will display the pgp_decode_command and
+  ** smime_decode_command outputs.
+  ** Defaults to true.
+  ** (PGP/SMIME only)
+  */ 
   { "pipe_decode",	DT_BOOL, R_NONE, OPTPIPEDECODE, 0 },
   /*
   ** .pp
