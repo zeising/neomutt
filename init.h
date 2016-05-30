@@ -3262,6 +3262,18 @@ struct option_t MuttVars[] = {
   ** a line quoted text if it also matches $$smileys. This mostly
   ** happens at the beginning of a line.
   */
+  { "pgp_mime_signature_filename", DT_STR, R_NONE, UL &PgpMimeSignatureFilename, UL "signature.asc"},
+  /*
+  ** .pp
+  ** This option sets the filename used for signature parts in PGP/MIME
+  ** signed messages.
+  */
+  { "pgp_mime_signature_description", DT_STR, R_NONE, UL &PgpMimeSignatureDescription, UL "Digital signature"},
+  /*
+  ** .pp
+  ** This option sets the Content-Description used for signature parts in
+  ** PGP/MIME signed messages.
+  */
 
 
 
