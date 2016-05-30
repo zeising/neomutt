@@ -4109,11 +4109,9 @@ struct option_t MuttVars[] = {
   { "write_bcc",	DT_BOOL, R_NONE, OPTWRITEBCC, 1},
   /*
   ** .pp
-  ** Controls whether mutt writes out the ``Bcc:'' header when preparing
-  ** messages to be sent.  Exim users may wish to unset this. If mutt
-  ** is set to deliver directly via SMTP (see $$smtp_url), this
-  ** option does nothing: mutt will never write out the ``Bcc:'' header
-  ** in this case.
+  ** Controls whether mutt writes out the Bcc header when saving
+  ** messages to FCC. Bcc headers will never be written to a message
+  ** when sending it.
   */
   { "write_inc",	DT_NUM,	 R_NONE, UL &WriteInc, 10 },
   /*
