@@ -129,7 +129,7 @@ static const char *No_visible = N_("No visible messages.");
    (option (OPTCOLLAPSEFLAGGED) || FLAGGED(header) == 0))
 
 /* de facto standard escapes for tsl/fsl */
-static char *tsl = "\033]0;";
+static char *tsl = "\033]2;";
 static char *fsl = "\007";
 
 /* terminal status capability check. terminfo must have been initialized. */
