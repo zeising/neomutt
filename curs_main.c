@@ -154,6 +154,11 @@ short mutt_ts_capability(void)
     NULL
   };
 
+  /* check that we're actually having a tty, such that tigetstr doesn't
+   * hang/spinlock */
+  if (!isatty(1))
+    return 0;
+
   /* If tsl is set, then terminfo says that status lines work. */
   tcaps = tigetstr("tsl");
   if (tcaps && tcaps != (char *)-1 && *tcaps)
