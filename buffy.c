@@ -480,7 +480,7 @@ int mutt_parse_virtual_mailboxes (BUFFER *path, BUFFER *s, unsigned long data, B
 
     mutt_extract_token (path, s, 0);
     if (path->data && *path->data)
-      desc = safe_strdup( path->data);
+      desc = safe_strdup (path->data);
     else
       continue;
 
@@ -512,6 +512,47 @@ int mutt_parse_virtual_mailboxes (BUFFER *path, BUFFER *s, unsigned long data, B
     (*tmp)->size = 0;
     (*tmp)->desc = desc;
   }
+  return 0;
+}
+
+int mutt_parse_virtual_unmailboxes (BUFFER *path, BUFFER *s, unsigned long data, BUFFER *err)
+{
+  BUFFY **tmp,*tmp1;
+
+  while (MoreArgs (s))
+  {
+    mutt_extract_token (path, s, 0);
+
+    if (mutt_strcmp (path->data, "*") == 0)
+    {
+      for (tmp = &VirtIncoming; *tmp;)
+      {
+        tmp1=(*tmp)->next;
+#ifdef USE_SIDEBAR
+        mutt_sb_notify_mailbox (*tmp, 0);
+#endif
+        buffy_free (tmp);
+        *tmp=tmp1;
+      }
+      return 0;
+    }
+
+    for (tmp = &VirtIncoming; *tmp; tmp = &((*tmp)->next))
+    {
+      if ((mutt_strcasecmp (path->data, (*tmp)->path) == 0) ||
+          (mutt_strcasecmp (path->data, (*tmp)->desc) == 0))
+      {
+        tmp1=(*tmp)->next;
+#ifdef USE_SIDEBAR
+        mutt_sb_notify_mailbox (*tmp, 0);
+#endif
+        buffy_free (tmp);
+        *tmp=tmp1;
+	break;
+      }
+    }
+  }
+
   return 0;
 }
 #endif
