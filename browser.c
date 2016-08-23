@@ -76,6 +76,7 @@ typedef struct folder_t
   int num;
 } FOLDER;
 
+static char OldLastDir[_POSIX_PATH_MAX] = "";
 static char LastDir[_POSIX_PATH_MAX] = "";
 static char LastDirBackup[_POSIX_PATH_MAX] = "";
 
@@ -893,17 +894,32 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
   }
   else
 #endif
-  if (buffy)
+  if (buffy) {
+    menu->is_mailbox_list = 1;
     snprintf (title, titlelen, _("Mailboxes [%d]"), mutt_buffy_check (0));
-  else
+  } else
   {
+    menu->is_mailbox_list = 0;
     strfcpy (path, LastDir, sizeof (path));
     mutt_pretty_mailbox (path, sizeof (path));
 #ifdef USE_IMAP
-  if (state->imap_browse && option (OPTIMAPLSUB))
-    snprintf (title, titlelen, _("Subscribed [%s], File mask: %s"),
-	      path, NONULL (Mask.pattern));
-  else
+  if (state->imap_browse && option (OPTIMAPLSUB)) {
+    char *p = strrchr (OldLastDir, '/');
+    if (p && ((p - OldLastDir) == mutt_strlen (LastDir)) &&
+       (mutt_strncmp (LastDir, OldLastDir, p - OldLastDir) == 0)) {
+      /* If we get here, it means that LastDir is the parent directory of
+       * OldLastDir.  I.e., we're returning from a subdirectory, and we want
+       * to position the cursor on the directory we're returning from. */
+      int i;
+      for (i = 0; i < state->entrymax; i++) {
+        if (mutt_strcmp (state->entry[i].name, p + 1) == 0) {
+          menu->current = i;
+        }
+      }
+    }
+    snprintf (title, titlelen, _("Directory [%s], File mask: %s"),
+             path, NONULL(Mask.pattern));
+  } else
 #endif
     snprintf (title, titlelen, _("Directory [%s], File mask: %s"),
 	      path, NONULL(Mask.pattern));
@@ -1136,8 +1152,6 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 #endif
 	    )
 	  {
-	    char OldLastDir[_POSIX_PATH_MAX];
-
 	    /* save the old directory */
 	    strfcpy (OldLastDir, LastDir, sizeof (OldLastDir));
 
