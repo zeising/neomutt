@@ -51,6 +51,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/utsname.h>
+#include <netdb.h>
 #include <errno.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -3188,6 +3189,31 @@ static int mutt_execute_commands (LIST *p)
   return 0;
 }
 
+int getmailname(char *s, size_t l)
+{
+    FILE *f;
+    char tmp[512];
+    char *p = tmp;
+
+    if ((f = fopen ("/etc/mailname", "r")) == NULL)
+       return (-1);
+
+    if (fgets (tmp, 510, f) != NULL) {
+      while (*p && !ISSPACE(*p) && l > 0) {
+	*s++ = *p++;
+	l--;
+      }
+      if (*(s-1) == '.')
+	s--;
+      *s = 0;
+
+      fclose (f);
+      return 0;
+    }
+    fclose (f);
+    return (-1);
+}
+
 void mutt_init (int skip_sys_rc, LIST *commands)
 {
   struct passwd *pw;
@@ -3281,8 +3307,10 @@ void mutt_init (int skip_sys_rc, LIST *commands)
   else
     Hostname = safe_strdup (utsname.nodename);
 
-  /* now get FQDN.  Use configured domain first, DNS next, then uname */
-  if (domain)
+  /* now get FQDN.  Use /etc/mailname first, then configured domain, DNS next, then uname */
+  if (getmailname(buffer, sizeof (buffer)) != -1)
+    Fqdn = safe_strdup(buffer);
+  else if (domain)
   {
     /* we have a compile-time domain name, use that for Fqdn */
     Fqdn = safe_malloc (mutt_strlen (domain) + mutt_strlen (Hostname) + 2);
