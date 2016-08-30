@@ -1531,6 +1531,13 @@ struct option_t MuttVars[] = {
   ** The locale used by \fCstrftime(3)\fP to format dates. Legal values are
   ** the strings your system accepts for the locale environment variable \fC$$$LC_TIME\fP.
   */
+#ifdef USE_LUA
+  { "lua_script",	DT_STR,  R_NONE, UL &LuaScript, 0 },
+  /*
+  ** .pp
+  ** External Lua script to run.
+  */
+#endif
   { "mail_check",	DT_NUM,  R_NONE, UL &BuffyTimeout, 5 },
   /*
   ** .pp

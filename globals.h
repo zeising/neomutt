@@ -69,6 +69,9 @@ WHERE char *Inbox;
 WHERE char *Ispell;
 WHERE char *KeywordsSave;
 WHERE char *Locale;
+#ifdef USE_LUA
+WHERE char *LuaScript;
+#endif
 WHERE char *MailcapPath;
 WHERE char *Maildir;
 #if defined(USE_IMAP) || defined(USE_POP) || defined(USE_NNTP)
