@@ -172,6 +172,20 @@ AS_IF([test x$enable_sidebar = "xyes"], [
 	   MUTT_LIB_OBJECTS="$MUTT_LIB_OBJECTS sidebar.o"
 ])
 
+AC_ARG_ENABLE(lua, AC_HELP_STRING([--enable-lua], [Enable Lua scripting support]), enable_lua=$enableval, enable_lua=no)
+
+AX_PROG_LUA([5.3],[],:,enable_lua=no)
+AX_LUA_HEADERS(:,enable_lua=no)
+AX_LUA_LIBS(:,enable_lua=no)
+
+AS_IF([test x$enable_lua = "xyes"], [
+	   AC_DEFINE(USE_LUA, 1, [Define if you want support for LUA.])
+	   MUTT_LIB_OBJECTS="$MUTT_LIB_OBJECTS mutt-lua.o"
+	   CPPFLAGS="$CPPFLAGS $LUA_INCLUDE"
+	   LIBS="$LIBS $LUA_LIB"
+])
+AM_CONDITIONAL(BUILD_LUA, test x$enable_lua = xyes)
+
 AC_ARG_ENABLE(compressed, AC_HELP_STRING([--enable-compressed], [Enable compressed folders support]),
               enable_compressed=$enableval, enable_compressed=no
 )
@@ -1467,4 +1481,5 @@ AC_MSG_NOTICE([Summary of build options:
   Notmuch:           $enable_notmuch
   Compressed Folder: $enable_compressed
   Header Cache:      $hcache_db_used
+  Lua:               $enable_lua
 ])
