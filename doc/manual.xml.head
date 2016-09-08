@@ -8208,11 +8208,6 @@ please have a look at the mixmaster documentation.
 	    <entry><literal>no</literal></entry>
 	  </row>
 	  <row>
-	    <entry><literal>sidebar_whitelist</literal></entry>
-	    <entry>list</entry>
-	    <entry>(empty)</entry>
-	  </row>
-	  <row>
 	    <entry><literal>sidebar_width</literal></entry>
 	    <entry>number</entry>
 	    <entry><literal>20</literal></entry>
@@ -8296,7 +8291,28 @@ please have a look at the mixmaster documentation.
       <arg choice="opt" rep="repeat">
 	<replaceable class="parameter">mailbox</replaceable>
       </arg>
+
+      <command>unsidebar_whitelist<anchor id="unsidebar-whitelist"/></command>
+      <arg choice="plain">
+	<replaceable class="parameter">*</replaceable>
+      </arg>
+      <arg choice="plain" rep="repeat">
+	<replaceable class="parameter">mailbox</replaceable>
+      </arg>
     </cmdsynopsis>
+
+    <para>
+      This command specifies mailboxes that will always be displayed
+      in the sidebar, even if <link
+      linkend="sidebar-new-mail-only">$sidebar_new_mail_only</link>
+      is set and the mailbox does not contain new mail.
+    </para>
+
+    <para>
+      The <quote>unsidebar_whitelist</quote> command is used to remove a mailbox from
+      the list of whitelisted mailboxes. Use <quote>unsidebar_whitelist *</quote>
+      to remove all mailboxes.
+    </para>
   </sect2>
 
   <sect2 id="sidebar-colors">
@@ -9569,13 +9585,24 @@ The following are the commands understood by Mutt:
 <cmdsynopsis>
 <command><link linkend="sidebar-whitelist">sidebar_whitelist</link></command>
 <arg choice="plain">
-<replaceable class="parameter">item</replaceable>
+<replaceable class="parameter">mailbox</replaceable>
 </arg>
+<arg choice="opt" rep="repeat">
+<replaceable class="parameter">mailbox</replaceable>
+</arg>
+
+<command><link linkend="unsidebar-whitelist">unsidebar_whitelist</link></command>
+<group choice="req">
 <arg choice="plain">
-<replaceable class="parameter">command</replaceable>
+<replaceable class="parameter">*</replaceable>
 </arg>
+<arg choice="plain" rep="repeat">
+<replaceable class="parameter">mailbox</replaceable>
+</arg>
+</group>
 </cmdsynopsis>
 </listitem>
+
 <listitem>
 <cmdsynopsis>
 <command><link linkend="source">source</link></command>
