@@ -265,6 +265,10 @@ static int edit_envelope (ENVELOPE *en, int flags)
       return (-1);
     if (option (OPTASKBCC) && edit_address (&en->bcc, "Bcc: ") == -1)
       return (-1);
+    if (option (OPTREPLYWITHXORIG) &&
+	(flags & (SENDREPLY|SENDLISTREPLY|SENDGROUPREPLY)) &&
+	(edit_address (&en->from, "From: ") == -1))
+      return (-1);
   }
 
   if (en->subject)
@@ -1228,6 +1232,44 @@ static int has_recips (ADDRESS *a)
   return c;
 }
 
+int
+mutt_search_attach_keyword (char *filename)
+{
+  /* Search for the keyword in AttachKeyword within a file */
+  int klen = mutt_strlen (AttachKeyword) + 1;
+  if (klen == 1)
+    return 0;
+
+  FILE *attf = safe_fopen (filename, "r");
+  if (!attf)
+    return 0;
+
+  char *lowerKeyword = safe_malloc (klen);
+  char *inputline = safe_malloc (LONG_STRING);
+  int i;
+  for (i = 0; i <= klen; i++)
+    lowerKeyword[i] = tolower (AttachKeyword[i]);
+
+  int found = 0;
+  while (!feof (attf))
+  {
+    fgets (inputline, LONG_STRING, attf);
+    int ilen = strlen (inputline);
+    for (i = 0; i < ilen; i++)
+      inputline[i] = tolower (inputline[i]);
+
+    if (strstr (inputline, lowerKeyword))
+    {
+      found = 1;
+      break;
+    }
+  }
+  FREE (&inputline);
+  FREE (&lowerKeyword);
+  safe_fclose (&attf);
+  return found;
+}
+
 /*
  * Returns 0 if the message was successfully sent
  *        -1 if the message was aborted or an error occurred
@@ -1400,7 +1442,28 @@ ci_send_message (int flags,		/* send mode */
      * have their aliases expanded.
      */
 
+    if (msg->env->from)
+        dprint (5, (debugfile, "ci_send_message: msg->env->from before set_reverse_name: %s\n", msg->env->from->mailbox));
     msg->env->from = set_reverse_name (cur->env);
+  }
+  if (cur && option (OPTREPLYWITHXORIG) && !(flags & (SENDPOSTPONED|SENDRESEND|SENDFORWARD)))
+  {
+    /* We shouldn't have to worry about freeing `msg->env->from' before
+     * setting it here since this code will only execute when doing some
+     * sort of reply. The pointer will only be set when using the -H command
+     * line option.
+     *
+     * If there is already a from address recorded in `msg->env->from',
+     * then it theoretically comes from OPTREVNAME handling, and we don't use
+     * the `X-Orig-To header'.
+     */
+    if (cur->env->x_original_to && !msg->env->from)
+    {
+      msg->env->from = cur->env->x_original_to;
+      /* Not more than one from address */
+      msg->env->from->next = NULL;
+      dprint (5, (debugfile, "ci_send_message: msg->env->from extracted from X-Original-To: header: %s\n", msg->env->from->mailbox));
+    }
   }
 
   if (! (flags & (SENDPOSTPONED|SENDRESEND)) &&
@@ -1838,6 +1901,25 @@ main_loop:
     goto main_loop;
   }
 #endif
+
+  if (mutt_search_attach_keyword (msg->content->filename) &&
+         !msg->content->next &&
+         query_quadoption (OPT_ATTACH, _("No attachments, cancel sending?")) != MUTT_NO)
+  {
+    /* if the abort is automatic, print an error message */
+    if (quadoption (OPT_ATTACH) == MUTT_YES)
+    {
+      char errorstr[STRING];
+      if (snprintf (errorstr, STRING,
+        _("Message contains magic keyword \"%s\", but no attachments. Not sending."), AttachKeyword) == -1)
+      {
+        errorstr[STRING] = 0; // terminate if need be. our string shouldn't be this long.
+      }
+      mutt_error (errorstr);
+    }
+    goto main_loop;
+  }
+
 
   if (msg->content->next)
     msg->content = mutt_make_multipart (msg->content);

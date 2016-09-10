@@ -6,12 +6,12 @@ dnl !!! TO DUMP THEIR RESULTS WHEN MUTT -V IS CALLED            !!!
 CFLAGS=$CFLAGS
 LDFLAGS=$LDFLAGS
 
-AC_INIT([NeoMutt], m4_esyscmd(./git-version-gen --prefix "neomutt-" .tarball-version), [neomutt-devel@neomutt.org], [neomutt], [http://www.neomutt.org])
+AC_INIT([NeoMutt], [20160910], [neomutt-devel@neomutt.org], [neomutt], [http://www.neomutt.org])
 AC_CONFIG_SRCDIR(mutt.h)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])
 
-AC_SUBST([CONFIG_STATUS_DEPENDENCIES], ['$(top_srcdir)/.version'])
+AC_DEFINE(MUTT_VERSION, "1.7.0", [Version of upstream Mutt])
 
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -613,6 +613,12 @@ need_socket="no"
 
 dnl -- socket dependencies --
 
+dnl getaddrinfo is used by getdomain.c, and requires libnsl and
+dnl libsocket on some platforms
+AC_CHECK_FUNC(gethostent, , AC_CHECK_LIB(nsl, gethostent))
+AC_CHECK_FUNC(setsockopt, , AC_CHECK_LIB(socket, setsockopt))
+AC_CHECK_FUNCS(getaddrinfo)
+
 AC_ARG_ENABLE(pop,  AS_HELP_STRING([--enable-pop],[Enable POP3 support]),
 [       if test x$enableval = xyes ; then
                 AC_DEFINE(USE_POP,1,[ Define if you want support for the POP3 protocol. ])
@@ -665,9 +671,6 @@ then
                 AC_MSG_RESULT([no])
                 AC_DEFINE(socklen_t,int,
                         [ Define to 'int' if <sys/socket.h> doesn't have it. ]))
-        AC_CHECK_FUNC(gethostent, , AC_CHECK_LIB(nsl, gethostent))
-        AC_CHECK_FUNC(setsockopt, , AC_CHECK_LIB(socket, setsockopt))
-        AC_CHECK_FUNCS(getaddrinfo)
         AC_DEFINE(USE_SOCKET,1,
                 [ Include code for socket support. Set automatically if you enable POP3 or IMAP ])
         MUTT_LIB_OBJECTS="$MUTT_LIB_OBJECTS account.o mutt_socket.o mutt_tunnel.o"
@@ -1394,11 +1397,20 @@ if test $mutt_cv_langinfo_yesexpr = yes; then
   AC_DEFINE(HAVE_LANGINFO_YESEXPR,1,[ Define if you have <langinfo.h> and nl_langinfo(YESEXPR). ])
 fi
 
-AC_CHECK_FUNCS(fmemopen open_memstream, [
-	AC_ARG_ENABLE(fmemopen, AS_HELP_STRING([--disable-fmemopen],[Do NOT use fmemopen]),
-	[],
-	[AC_DEFINE(USE_FMEMOPEN, 1, [Use fmemopen])])
-])
+# Only enable fmemopen if both fmemopen() and open_memstream()
+# AND --enable-fmemopen is given.
+have_fmemopen=yes
+AC_CHECK_FUNCS(fmemopen open_memstream, [], [have_fmemopen=no])
+
+AC_ARG_ENABLE(fmemopen, AS_HELP_STRING([--enable-fmemopen],[Use fmemopen]),
+	[use_fmemopen=$enableval], [use_fmemopen=no]
+)
+
+AS_IF([test $have_fmemopen = "yes" && test $use_fmemopen = "yes"],
+      # Temporarily disable fmemopen, due to a bug
+      [AC_DEFINE(USE_FMEMOPEN, 0, [Use fmemopen])],
+      [use_fmemopen=no]
+)
 
 dnl Documentation tools
 have_openjade="no"

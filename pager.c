@@ -29,6 +29,7 @@
 #include "pager.h"
 #include "attach.h"
 #include "mbyte.h"
+#include "mailbox.h"
 #ifdef USE_SIDEBAR
 #include "sidebar.h"
 #endif
@@ -901,6 +902,68 @@ resolve_types (char *buf, char *raw, struct line_t *lineInfo, int n, int last,
     if (nl > 0)
       buf[nl] = '\n';
   }
+
+  /* attachment patterns */
+  if (lineInfo[n].type == MT_COLOR_ATTACHMENT)
+  {
+    size_t nl;
+
+    /* don't consider line endings part of the buffer for regex matching */
+    nl = mutt_strlen (buf);
+    if ((nl > 0) && (buf[nl - 1] == '\n'))
+      buf[nl - 1] = 0;
+
+    i = 0;
+    offset = 0;
+    lineInfo[n].chunks = 0;
+    do
+    {
+      if (!buf[offset])
+	break;
+
+      found = 0;
+      null_rx = 0;
+      for (color_line = ColorAttachList; color_line; color_line = color_line->next)
+      {
+	if (regexec (&color_line->rx, buf + offset, 1, pmatch,
+		     (offset ? REG_NOTBOL : 0)) == 0)
+	{
+	  if (pmatch[0].rm_eo != pmatch[0].rm_so)
+	  {
+	    if (!found)
+	    {
+	      if (++(lineInfo[n].chunks) > 1)
+		safe_realloc (&(lineInfo[n].syntax),
+			      (lineInfo[n].chunks) * sizeof (struct syntax_t));
+	    }
+	    i = lineInfo[n].chunks - 1;
+	    pmatch[0].rm_so += offset;
+	    pmatch[0].rm_eo += offset;
+	    if (!found ||
+		 pmatch[0].rm_so <  (lineInfo[n].syntax)[i].first ||
+		(pmatch[0].rm_so == (lineInfo[n].syntax)[i].first &&
+		 pmatch[0].rm_eo >  (lineInfo[n].syntax)[i].last))
+	    {
+	      (lineInfo[n].syntax)[i].color = color_line->pair;
+	      (lineInfo[n].syntax)[i].first = pmatch[0].rm_so;
+	      (lineInfo[n].syntax)[i].last  = pmatch[0].rm_eo;
+	    }
+	    found = 1;
+	    null_rx = 0;
+	  }
+	  else
+	    null_rx = 1; /* empty regexp; don't add it, but keep looking */
+	}
+      }
+
+      if (null_rx)
+	offset++; /* avoid degenerate cases */
+      else
+	offset = (lineInfo[n].syntax)[i].last;
+    } while (found || null_rx);
+    if (nl > 0)
+      buf[nl] = '\n';
+  }
 }
 
 static int is_ansi (unsigned char *buf)
@@ -1622,6 +1685,9 @@ mutt_pager (const char *banner, const char *fname, int flags, pager_t *extra)
   int indicator = indexlen / 3; 	/* the indicator line of the PI */
   int old_PagerIndexLines;		/* some people want to resize it
   					 * while inside the pager... */
+  int index_hint = 0;			/* used to restore cursor position */
+  int oldcount = -1;
+  int check;
 
 #ifdef USE_NNTP
   char *followup_to;
@@ -1944,6 +2010,40 @@ mutt_pager (const char *banner, const char *fname, int flags, pager_t *extra)
     if (ch != -1)
       mutt_clear_error ();
     mutt_curs_set (1);
+
+    if (Context && !option (OPTATTACHMSG))
+    {
+      /* check for new mail */
+      check = mx_check_mailbox (Context, &index_hint);
+      if (check < 0)
+      {
+        if (!Context->path)
+        {
+          /* fatal error occurred */
+          FREE (&Context);
+          redraw = REDRAW_FULL;
+          ch = -1;
+        }
+      }
+      else if ((check == MUTT_NEW_MAIL) || (check == MUTT_REOPENED) || (check == MUTT_FLAGS))
+      {
+        oldcount = Context ? Context->msgcount : 0;
+        update_index (index, Context, check, oldcount, index_hint);
+      }
+      /* notify user of newly arrived mail */
+      if (mutt_buffy_notify())
+      {
+        redraw |= REDRAW_STATUS;
+        if (option (OPTBEEPNEW))
+          beep();
+        if (NewMailCmd)
+        {
+          char cmd[LONG_STRING];
+          menu_status_line (cmd, sizeof (cmd), index, NONULL (NewMailCmd));
+          mutt_system (cmd);
+        }
+      }
+    }
 
     if (SigInt)
     {
@@ -2467,19 +2567,26 @@ search_next:
 
       case OP_DELETE_THREAD:
       case OP_DELETE_SUBTHREAD:
+      case OP_PURGE_THREAD:
 	CHECK_MODE(IsHeader (extra));
 	CHECK_READONLY;
         /* L10N: CHECK_ACL */
 	CHECK_ACL(MUTT_ACL_DELETE, _("Cannot delete message(s)"));
 
-	r = mutt_thread_set_flag (extra->hdr, MUTT_DELETE, 1,
-				  ch == OP_DELETE_THREAD ? 0 : 1);
-
-	if (r != -1)
 	{
+	  int subthread = (ch == OP_DELETE_SUBTHREAD);
+	  r = mutt_thread_set_flag (extra->hdr, MUTT_DELETE, 1, subthread);
+	  if (r == -1)
+	    break;
+	  if (ch == OP_PURGE_THREAD)
+	  {
+	    r = mutt_thread_set_flag (extra->hdr, MUTT_PURGE, 1, subthread);
+	    if (r == -1)
+	      break;
+	  }
+
 	  if (option (OPTDELETEUNTAG))
-	    mutt_thread_set_flag (extra->hdr, MUTT_TAG, 0,
-				  ch == OP_DELETE_THREAD ? 0 : 1);
+	    mutt_thread_set_flag (extra->hdr, MUTT_TAG, 0, subthread);
 	  if (option (OPTRESOLVE))
 	  {
 	    rc = OP_MAIN_NEXT_UNDELETED;

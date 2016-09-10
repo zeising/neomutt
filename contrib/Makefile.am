@@ -3,9 +3,10 @@
 subdir = contrib
 
 SAMPLES = Mush.rc Pine.rc gpg.rc pgp2.rc pgp5.rc pgp6.rc Tin.rc \
-	sample.muttrc  sample.mailcap sample.muttrc-tlr \
-	colors.default colors.linux smime.rc \
-	ca-bundle.crt smime_keys_test.pl mutt_xtitle
+	sample.mailcap sample.muttrc sample.muttrc-sidebar sample.muttrc-tlr \
+	sample.vimrc-sidebar colors.default colors.linux smime.rc \
+	ca-bundle.crt smime_keys_test.pl mutt_xtitle \
+	sample.colors.attach_headers
 
 EXTRA_DIST = language.txt language50.txt  \
 	patch.slang-1.2.2.keypad.1	\
@@ -15,7 +16,7 @@ EXTRA_DIST = language.txt language50.txt  \
 	vim-keybindings \
 	keybase
 
-CONTRIB_DIRS = vim-keybindings
+CONTRIB_DIRS = vim-keybindings keybase
 
 install-data-local:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(docdir)/samples $(DESTDIR)$(docdir)/samples/iconv
@@ -33,6 +34,7 @@ install-data-local:
 			$(INSTALL) -m 644 $$f $(DESTDIR)$(docdir)/$$d ; \
 		done \
 	done
+	chmod +x $(DESTDIR)$(docdir)/keybase/*.sh
 
 uninstall-local:
 	for f in $(SAMPLES) ; do \

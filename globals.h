@@ -38,6 +38,7 @@ WHERE char *AttachSep;
 WHERE char *Attribution;
 WHERE char *AttachCharset;
 WHERE char *AttachFormat;
+WHERE char *AttachKeyword;
 WHERE char *Charset;
 WHERE char *ComposeFormat;
 WHERE char *ConfigCharset;
@@ -172,7 +173,7 @@ WHERE char *CurrentFolder;
 WHERE char *LastFolder;
 
 
-WHERE const char *ReleaseDate;
+WHERE const char *OldMuttVer;
 
 WHERE HASH *Groups;
 WHERE HASH *Labels;
@@ -339,5 +340,5 @@ extern const char * const Months[];
 #include "buffy.h"
 #include "sort.h"
 #include "mutt_crypt.h"
-#include "reldate.h"
+#include "oldmutt_ver.h"
 #endif /* MAIN_C */

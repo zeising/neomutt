@@ -46,14 +46,7 @@ srcdir_DOCFILES = PGP-Notes.txt applying-patches.txt	\
 	devel-notes.txt patch-notes.txt smime-notes.txt
 
 topsrcdir_DOCFILES = COPYRIGHT GPL INSTALL ChangeLog ChangeLog.neomutt	\
-	README NEWS TODO README.SECURITY README.SSL \
-	README.compress README.cond-date README.fmemopen README.ifdef \
-	README.index-color README.initials README.keywords \
-	README.limit-current-thread README.lmdb README.neomutt \
-	README.nested-if README.new-mail README.nntp README.notmuch \
-	README.progress README.quasi-delete README.sidebar README.skip-quoted \
-	README.smime-encrypt-self README.status-color README.tls-sni \
-	README.trash
+	README NEWS TODO README.SECURITY README.SSL README.neomutt README.notmuch
 
 all: makedoc-all
 
@@ -73,6 +66,9 @@ install-data-local: makedoc-all instdoc
 	./instdoc $(srcdir)/mbox.man $(DESTDIR)$(mandir)/man5/mbox.5
 	./instdoc $(srcdir)/mmdf.man $(DESTDIR)$(mandir)/man5/mmdf.5
 	$(MKDIR_P) $(DESTDIR)$(docdir)
+	for f in $(topsrcdir_DOCFILES) ; do \
+		$(INSTALL) -m 644 $(top_srcdir)/$$f $(DESTDIR)$(docdir) ; \
+	done
 	for f in $(srcdir_DOCFILES) ; do \
 		$(INSTALL) -m 644 $(srcdir)/$$f $(DESTDIR)$(docdir) ; \
 	done
@@ -190,7 +186,7 @@ stamp-doc-xml: makedoc$(EXEEXT) $(top_srcdir)/init.h \
                manual.xml.head $(top_srcdir)/functions.h $(top_srcdir)/OPS* manual.xml.tail \
                $(srcdir)/gen-map-doc
 	( date=`head -n 1 $(top_srcdir)/ChangeLog.neomutt | LC_ALL=C cut -b 1-10` && \
-	  sed -e "s/@VERSION\@/$(PACKAGE_VERSION) ($$date)/" $(srcdir)/manual.xml.head && \
+	  sed -e "s/@VERSION\@/$(PACKAGE_VERSION) (1.7.0)/" $(srcdir)/manual.xml.head && \
 	  $(MAKEDOC_CPP) $(top_srcdir)/init.h | ./makedoc$(EXEEXT) -s && \
 	  $(MAKEDOC_CPP) $(top_srcdir)/functions.h | \
 	    perl $(srcdir)/gen-map-doc $(srcdir)/manual.xml.tail $(top_srcdir)/OPS* \

@@ -86,6 +86,15 @@ struct option_t
 
 struct option_t MuttVars[] = {
   /*++*/
+
+  { "abort_noattach", DT_QUAD, R_NONE, OPT_ATTACH, MUTT_NO },
+  /*
+  ** .pp
+  ** If set to \fIyes\fP, when composing messages containing the word
+  ** specified by $attach_keyword (default is "attach") and no attachments
+  ** are given, composition will be aborted. If set to \fIno\fP, composing
+  ** messages as such will never be aborted.
+  */
   { "abort_nosubject",	DT_QUAD, R_NONE, OPT_SUBJECT, MUTT_ASKYES },
   /*
   ** .pp
@@ -260,6 +269,13 @@ struct option_t MuttVars[] = {
   ** .de
   ** .pp
   ** For an explanation of ``soft-fill'', see the $$index_format documentation.
+  */
+  { "attach_keyword",  DT_STR,  R_NONE, UL &AttachKeyword, UL "attach" },
+  /*
+  ** .pp
+  ** If $abort_noattach is not set to no, then the body of the message
+  ** will be scanned for this keyword, and if found, you will be prompted
+  ** if there are no attachments. This is case insensitive.
   */
   { "attach_sep",	DT_STR,	 R_NONE, UL &AttachSep, UL "\n" },
   /*
@@ -588,6 +604,12 @@ struct option_t MuttVars[] = {
   ** the problem noted in $$crypt_replysign, that mutt is not able
   ** to find out whether an encrypted message is also signed.
   ** (Crypto only)
+  */
+  { "pgp_encrypt_self",		DT_QUAD,	 R_NONE, OPT_PGPENCRYPTSELF, MUTT_NO },
+  /*
+  ** .pp
+  ** Encrypt the message to $$pgp_sign_as too.
+  ** (PGP only)
   */
   { "crypt_timestamp", DT_BOOL, R_NONE, OPTCRYPTTIMESTAMP, 1 },
   /*
@@ -2774,6 +2796,16 @@ struct option_t MuttVars[] = {
   ** header field to the list address and you want to send a private
   ** message to the author of a message.
   */
+  { "reply_with_xorig", DT_BOOL, R_NONE, OPTREPLYWITHXORIG, 0 },
+  /*
+  ** .pp
+  ** This variable provides a toggle. When active, the From: header will be
+  ** extracted from the current mail's `X-Original-To:' header. This setting
+  ** does not have precedence over ``$reverse_realname''.
+  ** .pp
+  ** Assuming `fast_reply' is disabled, this option will prompt the user with a
+  ** prefilled From: header.
+  */
   { "resolve",		DT_BOOL, R_NONE, OPTRESOLVE, 1 },
   /*
   ** .pp
@@ -4027,22 +4059,12 @@ struct option_t MuttVars[] = {
   ** given in the built-in editor.
   */
 #ifdef USE_NOTMUCH
-  { "vfolder_format",	DT_STR,	 R_INDEX, UL &VirtFolderFormat, UL " %6n(%6N) %f " },
+  { "vfolder_format",	DT_STR,	 R_INDEX, UL &VirtFolderFormat, UL "%2C %?n?%4n/&     ?%4m %f" },
   /*
   ** .pp
   ** This variable allows you to customize the file browser display for virtual
-  ** folders to your ** personal taste.  This string is similar to $$index_format,
-  ** but has its own set of \fCprintf(3)\fP-like sequences:
-  ** .dl
-  ** .dt %f  .dd folder name (description)
-  ** .dt %n  .dd number of all messages
-  ** .dt %N  .dd number of new messages
-  ** .dt %>X .dd right justify the rest of the string and pad with character ``X''
-  ** .dt %|X .dd pad to the end of the line with character ``X''
-  ** .dt %*X .dd soft-fill with character ``X'' as pad
-  ** .de
-  ** .pp
-  ** For an explanation of ``soft-fill'', see the $$index_format documentation.
+  ** folders to your personal taste.  This string uses many of the same
+  ** expandos as $$folder_format.
   */
   { "virtual_spoolfile", DT_BOOL, R_NONE, OPTVIRTSPOOLFILE, 0 },
   /*

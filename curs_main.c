@@ -358,7 +358,7 @@ static int mx_toggle_write (CONTEXT *ctx)
   return 0;
 }
 
-static void update_index (MUTTMENU *menu, CONTEXT *ctx, int check,
+void update_index (MUTTMENU *menu, CONTEXT *ctx, int check,
 			  int oldcount, int index_hint)
 {
   /* store pointers to the newly added messages */
@@ -1801,6 +1801,9 @@ int mutt_index_menu (void)
           if (!path || !*path)
             break;
           strncpy (buf, path, sizeof (buf));
+
+          /* Mark the selected dir for the mutt browser */
+          mutt_browser_select_dir (buf);
         }
 #endif
 #ifdef USE_NOTMUCH
@@ -1835,6 +1838,8 @@ int mutt_index_menu (void)
 	  }
 	  else
 #endif
+	  /* By default, fill buf with the next mailbox that contains unread
+	   * mail */
 	  mutt_buffy (buf, sizeof (buf));
 
           if (mutt_enter_fname (cp, buf, sizeof (buf), &menu->redraw, 1) == -1)
@@ -1847,6 +1852,10 @@ int mutt_index_menu (void)
             else
               break;
           }
+          
+          /* Selected directory is okay, let's save it.*/
+          mutt_browser_select_dir (buf);
+
 	  if (!buf[0])
 	  {
             mutt_window_clearline (MuttMessageWindow, 0);
@@ -2577,21 +2586,28 @@ int mutt_index_menu (void)
 
       case OP_DELETE_THREAD:
       case OP_DELETE_SUBTHREAD:
+      case OP_PURGE_THREAD:
 
 	CHECK_MSGCOUNT;
-        CHECK_VISIBLE;
+	CHECK_VISIBLE;
 	CHECK_READONLY;
-        /* L10N: CHECK_ACL */
+	/* L10N: CHECK_ACL */
 	CHECK_ACL(MUTT_ACL_DELETE, _("Cannot delete message(s)"));
 
-	rc = mutt_thread_set_flag (CURHDR, MUTT_DELETE, 1,
-				   op == OP_DELETE_THREAD ? 0 : 1);
-
-	if (rc != -1)
 	{
+	  int subthread = (op == OP_DELETE_SUBTHREAD);
+	  rc = mutt_thread_set_flag (CURHDR, MUTT_DELETE, 1, subthread);
+	  if (rc == -1)
+	    break;
+	  if (op == OP_PURGE_THREAD)
+	  {
+	    rc = mutt_thread_set_flag (CURHDR, MUTT_PURGE, 1, subthread);
+	    if (rc == -1)
+	      break;
+	  }
+
 	  if (option (OPTDELETEUNTAG))
-	    mutt_thread_set_flag (CURHDR, MUTT_TAG, 0,
-				  op == OP_DELETE_THREAD ? 0 : 1);
+	    mutt_thread_set_flag (CURHDR, MUTT_TAG, 0, subthread);
 	  if (option (OPTRESOLVE))
 	    if ((menu->current = ci_next_undeleted (menu->current)) == -1)
 	      menu->current = menu->oldcurrent;
@@ -2677,6 +2693,7 @@ int mutt_index_menu (void)
       case OP_EDIT_LABEL:
 
 	CHECK_MSGCOUNT;
+	CHECK_VISIBLE;
 	CHECK_READONLY;
 	rc = mutt_label_message(tag ? NULL : CURHDR);
 	if (rc > 0) {

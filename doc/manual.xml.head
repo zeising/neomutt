@@ -890,6 +890,7 @@ color sidebar_indicator default color17         <emphasis role="comment"># Dark 
 color sidebar_highlight white   color238        <emphasis role="comment"># Grey background</emphasis>
 color sidebar_spoolfile yellow  default         <emphasis role="comment"># Yellow</emphasis>
 color sidebar_new       green   default         <emphasis role="comment"># Green</emphasis>
+color sidebar_ordinary  default default         <emphasis role="comment"># Default colors</emphasis>
 color sidebar_flagged   red     default         <emphasis role="comment"># Red</emphasis>
 color sidebar_divider   color8  default         <emphasis role="comment"># Dark grey</emphasis>
 </screen>
@@ -937,7 +938,7 @@ color sidebar_divider   color8  default         <emphasis role="comment"># Dark 
           </row>
           <row>
             <entry>Lowest</entry>
-            <entry>(None)</entry>
+            <entry><literal>sidebar_ordinary</literal></entry>
             <entry>Mailbox does not match above</entry>
           </row>
         </tbody>
@@ -2363,9 +2364,9 @@ See also the <link linkend="postpone">$postpone</link> quad-option.
     <tbody>
       <row><entry>$XDG_CONFIG_DIRS/neomutt/config</entry></row>
       <row><entry>/etc/NeoMuttrc</entry></row>
-      <row><entry>/etc/Muttrc-1.6.2-neo</entry></row>
+      <row><entry>/etc/Muttrc-1.7.0-neo</entry></row>
       <row><entry>/etc/Muttrc</entry></row>
-      <row><entry>/share/mutt/Muttrc-1.6.2-neo</entry></row>
+      <row><entry>/share/mutt/Muttrc-1.7.0-neo</entry></row>
       <row><entry>/share/mutt/Muttrc</entry></row>
     </tbody>
   </tgroup>
@@ -2396,9 +2397,9 @@ See also the <link linkend="postpone">$postpone</link> quad-option.
       <row><entry>$XDG_CONFIG_HOME/neomutt/config</entry></row>
       <row><entry>~/.neomuttrc</entry></row>
       <row><entry>~/.mutt/neomuttrc</entry></row>
-      <row><entry>~/.muttrc-1.6.2-neo</entry></row>
+      <row><entry>~/.muttrc-1.7.0-neo</entry></row>
       <row><entry>~/.muttrc</entry></row>
-      <row><entry>~/.mutt/muttrc-1.6.2-neo</entry></row>
+      <row><entry>~/.mutt/muttrc-1.7.0-neo</entry></row>
       <row><entry>~/.mutt/muttrc</entry></row>
     </tbody>
   </tgroup>
@@ -4486,8 +4487,8 @@ a message's score if <emphasis>pattern</emphasis> matches it.
 <emphasis>pattern</emphasis> is a string in the format described in the
 <link linkend="patterns">patterns</link> section (note: For efficiency
 reasons, patterns which scan information not available in the index,
-such as <literal>~b</literal>, <literal>~B</literal> or
-<literal>~h</literal>, may not be used).  <emphasis>value</emphasis> is
+such as <literal>~b</literal>, <literal>~B</literal>, <literal>~h</literal>,
+or <literal>~X</literal> may not be used).  <emphasis>value</emphasis> is
 a positive or negative integer.  A message's final score is the sum
 total of all matching <command>score</command> entries.  However, you
 may optionally prefix <emphasis>value</emphasis> with an equal sign
@@ -8288,6 +8289,128 @@ for example, in a global <literal>.muttrc</literal>.
 
 </sect1>
 
+<sect1 id="sensible-browser">
+  <title>Sensible-Browser Patch</title>
+  <subtitle>Make the file browser behave</subtitle>
+
+  <sect2 id="sensible-browser-patch">
+    <title>Patch</title>
+
+    <para>
+      To check if Mutt supports <quote>sensible-browser</quote>, look for
+      <quote>patch-sensible-browser</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="sensible-browser-intro">
+    <title>Introduction</title>
+
+    <para>
+      The <quote>sensible browser</quote> is a set of small changes to NeoMutt's
+      mailbox browser which make the browser behave in a more predictable way.
+    </para>
+
+    <para>
+      The behaviour is divided into two use cases: Fixed Order; Variable Order.
+    </para>
+
+    <sect3 id="sensible-browser-sort-fixed">
+      <title>A Fixed Order of Mailboxes</title>
+
+      <para>
+        This is for users who like their mailboxes in a fixed order, e.g.
+        alphabetical, or unsorted (in the order of the config file).
+      </para>
+
+<screen>
+<emphasis role="comment"># Fixed order</emphasis>
+set sort_browser="alpha"
+set sort_browser="unsorted"
+</screen>
+
+      <para>
+        When you first start the browser, e.g. <literal>c?</literal> your current
+        mailbox will be highlighted.
+      </para>
+
+      <para>
+        When you navigate to a parent mailbox (<quote>..</quote>) your old mailbox
+        will be highlighted.
+      </para>
+
+      <para>
+        <quote>..</quote> will always be listed at the top, however the rest of
+        the list is sorted.
+      </para>
+
+    </sect3>
+
+    <sect3 id="sensible-browser-sort-variable">
+      <title>A Variable Order of Mailboxes</title>
+
+      <para>
+        This is for users who like their mailboxes sorted by a characteristic
+        that changes, e.g. count of new mail, or the size of mailbox.
+      </para>
+
+<screen>
+<emphasis role="comment"># Variable order</emphasis>
+set sort_browser="reverse-count"
+set sort_browser="reverse-size"
+</screen>
+
+      <para>
+        When you first start the browser, e.g. <literal>c?</literal> the
+        highlight will be on the first mailbox, e.g. the one with the most new
+        mail.
+      </para>
+
+      <para>
+        When you navigate to a parent mailbox (<quote>..</quote>) your old mailbox
+        will be highlighted.
+      </para>
+
+      <para>
+        <quote>..</quote> will always be listed at the top, however the rest of
+        the list is sorted.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2 id="sensible-browser-see-also">
+    <title>See Also</title>
+
+    <itemizedlist>
+      <listitem><para><ulink url="http://www.neomutt.org/">NeoMutt Project</ulink></para></listitem>
+      <listitem><para><link linkend="folder-format">$folder_format</link></para></listitem>
+    </itemizedlist>
+  </sect2>
+
+  <sect2 id="sensible-browser-known-bugs">
+    <title>Known Bugs</title>
+    <para>None</para>
+  </sect2>
+
+  <sect2 id="sensible-browser-credits">
+    <title>Credits</title>
+    <itemizedlist>
+    <listitem><para>Pierre-Elliott Bécue <email>becue@crans.org</email></para></listitem>
+    <listitem><para>Haakon Riiser <email>haakon.riiser@fys.uio.no</email></para></listitem>
+    <listitem><para>Richard Russon <email>rich@flatcap.org</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
 </chapter>
 
 <chapter id="optionalfeatures">
@@ -8327,7 +8450,7 @@ would contain:
 Mutt may also be <quote>patched</quote> to support smaller features.
 These patches should add a free-form string to the end Mutt's version string.
 Running <literal>mutt -v</literal> might show:
-<screen>patch-1.6.2.sidebar.20160709</screen>
+<screen>patch-1.7.0.sidebar.20160709</screen>
 </para>
 </sect2>
 
@@ -8945,6 +9068,103 @@ please have a look at the mixmaster documentation.
 
 </sect1>
 
+<sect1 id="attach-headers-color">
+  <title>attach-headers-color Patch</title>
+  <subtitle>Color attachment headers using regexp, just like mail bodies</subtitle>
+
+  <sect2 id="attach-headers-color-patch">
+    <title>Patch</title>
+
+    <para>
+      To check if Mutt supports <quote>attach-headers-color</quote>, look for
+      <quote>patch-attach-headers-color</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="attach-headers-color-intro">
+    <title>Introduction</title>
+
+    <para>
+      This patch allows specifying regexps to color attachment headers just like the mail body would.
+      The headers are the parts colored by the <literal>attachment</literal> color. Coloring them is
+      useful to highlight the results of GPGME's signature checks or simply the mimetype or size of
+      the attachment. Only the part matched by the regexp is colored.
+    </para>
+
+  </sect2>
+
+  <sect2 id="attach-headers-color-usage">
+    <title>Usage</title>
+
+    <para>
+        The <literal>attach_headers</literal> color should be used just like the <literal>body</literal>
+        color.
+    </para>
+
+<screen>
+color attach_headers foreground background pattern
+</screen>
+  </sect2>
+
+  <sect2 id="attach-headers-color-muttrc">
+    <title>Muttrc</title>
+<screen>
+<emphasis role="comment"># Color if the attachment is autoviewed</emphasis>
+color   attach_headers     brightgreen     default        "Autoview"
+ 
+<emphasis role="comment"># Color only the brackets around the headers</emphasis>
+color   attach_headers     brightyellow    default        "^\\[--"
+color   attach_headers     brightyellow    default        "--]$"
+ 
+<emphasis role="comment"># Highlight the mime type and size</emphasis>
+color   attach_headers     green           default        "Type: [a-z]+/[a-z]"
+color   attach_headers     green           default        "Size: [0-9\.]+[KM]"
+ 
+<emphasis role="comment"># Color GPGME signature checks</emphasis>
+color   attach_headers     brightgreen     default        "Good signature from.*"
+color   attach_headers     brightred       default        "Bad signature from.*"
+color   attach_headers     brightred       default        "BAD signature from.*"
+color   attach_headers     brightred       default        "Note: This key has expired!"
+color   attach_headers     brightmagenta   default        "Problem signature from.*"
+color   attach_headers     brightmagenta   default        "WARNING: This key is not certified with a trusted signature!"
+color   attach_headers     brightmagenta   default        "         There is no indication that the signature belongs to the owner."
+color   attach_headers     brightmagenta   default        "can't handle these multiple signatures"
+color   attach_headers     brightmagenta   default        "signature verification suppressed"
+color   attach_headers     brightmagenta   default        "invalid node with packet of type"
+</screen>
+  </sect2>
+
+  <sect2 id="attach-headers-color-see-also">
+    <title>See Also</title>
+
+    <itemizedlist>
+      <listitem><para><ulink url="http://www.neomutt.org/">NeoMutt Project</ulink></para></listitem>
+      <listitem><para><link linkend="color">Color command</link></para></listitem>
+      <listitem><para><link linkend="regexp">Regular Expressions</link></para></listitem>
+    </itemizedlist>
+  </sect2>
+
+  <sect2 id="attach-headers-color-known-bugs">
+    <title>Known Bugs</title>
+    <para>None</para>
+  </sect2>
+
+  <sect2 id="attach-headers-color-credits">
+    <title>Credits</title>
+    <itemizedlist>
+      <listitem><para>Guillaume Brogi <email>gui-gui@netcourrier.com</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
 <sect1 id="compress">
   <title>Compressed Folders Patch</title>
   <subtitle>Read from/write to compressed mailboxes</subtitle>
@@ -8960,7 +9180,7 @@ please have a look at the mixmaster documentation.
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -8990,18 +9210,6 @@ please have a look at the mixmaster documentation.
     </para>
 
   </sect2>
-
-<!--
-  <sect2 id="compress-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="compress-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="compress-commands">
     <title>Commands</title>
@@ -9193,6 +9401,14 @@ please have a look at the mixmaster documentation.
         The <literal>close-hook</literal> will be used for empty, or missing files.
       </para>
 
+      <note>
+        <para>
+          If your command writes to stdout, it is vital that you use
+          <literal>&gt;&gt;</literal> in the <quote>append-hook</quote>.
+          If not, data will be lost.
+        </para>
+      </note>
+
       <sect4 id="compress-append-hook-example">
         <title>Example of append-hook</title>
 
@@ -9233,18 +9449,6 @@ please have a look at the mixmaster documentation.
       </para>
     </sect3>
   </sect2>
-
-<!--
-  <sect2 id="compress-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="compress-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="compress-muttrc">
     <title>Muttrc</title>
@@ -9339,7 +9543,7 @@ close-hook  '\.gpg$' &quot;gpg --encrypt --recipient YourGpgUserIdOrKeyId &lt; '
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
       <listitem><para><link linkend="nested-if">nested-if patch</link></para></listitem>
     </itemizedlist>
 
@@ -9653,28 +9857,6 @@ DDD = %[%m/%y ]
         </para>
   </sect2>
 
-<!--
-  <sect2 id="cond-date-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="cond-date-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="cond-date-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="cond-date-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="cond-date-muttrc">
     <title>Muttrc</title>
 <screen>
@@ -9731,6 +9913,133 @@ set index_format='%4C %Z %&lt;[y?%&lt;[m?%&lt;[d?%[%H:%M ]&amp;%[%a %d]&gt;&amp;
   </sect2>
 </sect1>
 
+<sect1 id="encrypt-to-self">
+  <title>Encrypt-to-Self Patch</title>
+  <subtitle>Save a self-encrypted copy of emails</subtitle>
+
+  <sect2 id="encrypt-to-self-patch">
+    <title>Patch</title>
+
+    <para>
+      To check if Mutt supports <quote>encrypt-to-self</quote>, look for
+      <quote>patch-encrypt-to-self</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="encrypt-to-self-intro">
+    <title>Introduction</title>
+
+    <para>
+      Once you encrypt an email to someone you cannot read it.  This is good
+      for security, but bad for record-keeping.  If you wanted to keep a copy
+      of an encrypted email you could set <link linkend="fcc-clear">$fcc_clear</link>.
+    </para>
+
+    <para>
+      A better option is to enable
+      <link linkend="smime-encrypt-self">$smime_encrypt_self</link>, then set
+      <link linkend="smime-default-key">$smime_default_key</link> to your
+      personal S/MIME key id.
+    </para>
+
+<screen>
+set smime_encrypt_self = yes
+set smime_default_key  = bb345e23.0
+</screen>
+
+    <para>
+      Or, if you use PGP, 
+      <link linkend="pgp-encrypt-self">$pgp_encrypt_self</link>, then set
+      <link linkend="pgp-sign-as">$pgp_sign_as</link> to your
+      personal PGP key id.
+    </para>
+
+<screen>
+set pgp_encrypt_self = yes
+set pgp_sign_as      = A4AF18C5582473BD35A1E9CE78BB3D480042198E
+</screen>
+
+  </sect2>
+
+  <sect2 id="encrypt-to-self-variables">
+    <title>Variables</title>
+
+    <table id="table-encrypt-self-variables">
+      <title>encrypt-self Variables</title>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Name</entry>
+            <entry>Type</entry>
+            <entry>Default</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>smime_encrypt_self</literal></entry>
+            <entry>quad</entry>
+            <entry>No</entry>
+          </row>
+          <row>
+            <entry><literal>pgp_encrypt_self</literal></entry>
+            <entry>quad</entry>
+            <entry>No</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </sect2>
+
+  <sect2 id="encrypt-to-self-muttrc">
+    <title>Muttrc</title>
+<screen>
+<emphasis role="comment"># This is a complete list of encrypt-self-related configuration.
+ 
+# --------------------------------------------------------------------------
+# VARIABLES - shown with their default values
+# --------------------------------------------------------------------------
+ 
+# Save a copy of outgoing email, encrypted to yourself using SMIME</emphasis>
+set smime_encrypt_self = "no"
+ 
+<emphasis role="comment"># Save a copy of outgoing email, encrypted to yourself using PGP</emphasis>
+set pgp_encrypt_self = "no"
+ 
+<emphasis role="comment"># vim: syntax=muttrc</emphasis>
+</screen>
+  </sect2>
+
+  <sect2 id="encrypt-to-self-see-also">
+    <title>See Also</title>
+
+    <itemizedlist>
+      <listitem><para><ulink url="http://www.neomutt.org/">NeoMutt Project</ulink></para></listitem>
+    </itemizedlist>
+  </sect2>
+
+  <sect2 id="encrypt-to-self-known-bugs">
+    <title>Known Bugs</title>
+    <para>None</para>
+  </sect2>
+
+  <sect2 id="encrypt-to-self-credits">
+    <title>Credits</title>
+    <itemizedlist>
+    <listitem><para>Omen Wild <email>omen@mandarb.com</email></para></listitem>
+    <listitem><para>Richard Russon <email>rich@flatcap.org</email></para></listitem>
+    <listitem><para>Guillaume Brogi <email>gui-gui@netcourrier.com</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
 <sect1 id="fmemopen">
   <title>Fmemopen Patch</title>
   <subtitle>Replace some temporary files with memory buffers</subtitle>
@@ -9746,7 +10055,7 @@ set index_format='%4C %Z %&lt;[y?%&lt;[m?%&lt;[d?%[%H:%M ]&amp;%[%a %d]&gt;&amp;
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
       <listitem><para><literal>open_memstream()</literal>, <literal>fmemopen()</literal> from glibc</para></listitem>
     </itemizedlist>
 
@@ -9783,33 +10092,6 @@ set index_format='%4C %Z %&lt;[y?%&lt;[m?%&lt;[d?%[%H:%M ]&amp;%[%a %d]&gt;&amp;
         </para>
   </sect2>
 
-<!--
-  <sect2 id="fmemopen-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="fmemopen-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="fmemopen-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="fmemopen-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="fmemopen-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="fmemopen-muttrc">
     <title>Muttrc</title>
     <para>None</para>
@@ -9839,6 +10121,116 @@ set index_format='%4C %Z %&lt;[y?%&lt;[m?%&lt;[d?%[%H:%M ]&amp;%[%a %d]&gt;&amp;
   </sect2>
 </sect1>
 
+<sect1 id="forgotten-attachments">
+  <title>forgotten-attachments Patch</title>
+  <subtitle>Alert user when (s)he forgets to attach a file to an outgoing email.</subtitle>
+
+  <sect2 id="forgotten-attachments-patch">
+    <title>Patch</title>
+
+    <para>
+      To check if Mutt supports <quote>forgotten-attachments</quote>, look for
+      <quote>patch-forgotten-attachments</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="forgotten-attachments-intro">
+    <title>Introduction</title>
+
+    <para>
+      The 'forgotten attachments' patch provides a new setting for Mutt that
+      alerts the user if the message body contains a certain keyword but there are
+      no attachments added. This is meant to ensure that the user does not forget
+      to attach a file after promising to do so in the mail.
+    </para>
+  </sect2>
+
+  <sect2 id="forgotten-attachments-variables">
+    <title>Variables</title>
+
+    <table id="table-forgotten-attachments-variables">
+      <title>forgotten-attachments Variables</title>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Name</entry>
+            <entry>Type</entry>
+            <entry>Default</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>attach-keyword</literal></entry>
+            <entry>string</entry>
+            <entry><literal>attached</literal></entry>
+          </row>
+          <row>
+            <entry><literal>abort_noattach</literal></entry>
+            <entry>quadoption</entry>
+            <entry><literal>ask-yes</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </sect2>
+
+  <sect2 id="forgotten-attachment-muttrc">
+<title>Muttrc</title>
+<screen>
+<emphasis role="comment"># This is a complete list of forgotten-attachments-related configuration.
+ 
+# --------------------------------------------------------------------------
+# VARIABLES - shown with their default values
+# --------------------------------------------------------------------------
+ 
+# The 'forgotten attachments' patch provides a new setting for Mutt that
+# alerts the user if the message body contains a certain keyword but there are
+# no attachments added. This is meant to ensure that the user does not forget
+# to attach a file after promising to do so in the mail.
+ 
+# Search for the following keyword in the body of the email</emphasis>
+set attach_keyword = "attached"
+ 
+<emphasis role="comment"># Ask if the user wishes to abort sending if $attach_keyword is found in the
+# body, but no attachments have been added</emphasis>
+set abort_noattach = ask-yes
+ 
+<emphasis role="comment"># vim: syntax=muttrc</emphasis>
+</screen>
+  </sect2>
+
+  <sect2 id="forgotten-attachments-see-also">
+    <title>See Also</title>
+
+    <itemizedlist>
+      <listitem><para><ulink url="http://www.neomutt.org/">NeoMutt Project</ulink></para></listitem>
+      <listitem><para><link linkend="attach-menu">The Attachment Menu</link></para></listitem>
+      <listitem><para><link linkend="attachment-map">The Attachment Menu key mappings</link></para></listitem>
+    </itemizedlist>
+  </sect2>
+
+  <sect2 id="forgotten-attachments-known-bugs">
+    <title>Known Bugs</title>
+    <para>None</para>
+  </sect2>
+
+  <sect2 id="forgotten-attachments-credits">
+    <title>Credits</title>
+    <itemizedlist>
+    <listitem><para>Darshit Shah <email>darnir@gmail.com</email></para></listitem>
+    <listitem><para>Richard Russon <email>rich@flatcap.org</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
 <sect1 id="ifdef">
   <title>Ifdef Patch</title>
   <subtitle>Conditional config options</subtitle>
@@ -9854,7 +10246,7 @@ set index_format='%4C %Z %&lt;[y?%&lt;[m?%&lt;[d?%[%H:%M ]&amp;%[%a %d]&gt;&amp;
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -9894,18 +10286,6 @@ ifndef USE_SIDEBAR finish
 
   </sect2>
 
-<!--
-  <sect2 id="ifdef-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="ifdef-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="ifdef-commands">
     <title>Commands</title>
     <cmdsynopsis>
@@ -9926,18 +10306,6 @@ ifndef USE_SIDEBAR finish
       <command>finish</command>
     </cmdsynopsis>
   </sect2>
-
-<!--
-  <sect2 id="ifdef-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="ifdef-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="ifdef-muttrc">
     <title>Muttrc</title>
@@ -10015,7 +10383,7 @@ ifndef USE_SIDEBAR finish
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
       <listitem><para><link linkend="status-color">status-color patch</link></para></listitem>
     </itemizedlist>
 
@@ -10048,23 +10416,6 @@ color index_author red default &quot;~smutt&quot;
     The author appears red when the subject (~s) contains <quote>mutt</quote>.
         </para>
   </sect2>
-
-<!--
-  <sect2 id="index-color-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="index-color-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="index-color-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="index-color-colors">
     <title>Colors</title>
@@ -10143,13 +10494,6 @@ color index-object foreground background pattern
       </tgroup>
     </table>
   </sect2>
-
-<!--
-  <sect2 id="index-color-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="index-color-muttrc">
     <title>Muttrc</title>
@@ -10241,7 +10585,7 @@ color index_size cyan default
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10271,28 +10615,6 @@ color index_size cyan default
     used in the <link linkend="index-format">$index_format</link> variable.
         </para>
   </sect2>
-
-<!--
-  <sect2 id="initials-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="initials-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="initials-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="initials-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="initials-muttrc">
     <title>Muttrc</title>
@@ -10367,7 +10689,7 @@ set index_format='%4C %Z %{%b %d} %I (%?l?%4l&amp;%4c?) %s'
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10500,17 +10822,6 @@ set index_format='%4C %Z %{%b %d} %I (%?l?%4l&amp;%4c?) %s'
     </table>
   </sect2>
 
-<!--
-  <sect2 id="keywords-commands">
-    <title>Commands</title>
-  </sect2>
-
-  <sect2 id="keywords-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="keywords-sort">
     <title>Sort</title>
     <table id="table-keywords-sort">
@@ -10606,7 +10917,7 @@ bind index,pager y edit-label
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10626,12 +10937,6 @@ bind index,pager y edit-label
 
   </sect2>
 
-<!--
-  <sect2 id="limit-current-thread-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
--->
   <sect2 id="limit-current-thread-functions">
     <title>Functions</title>
 
@@ -10661,22 +10966,6 @@ bind index,pager y edit-label
     </table>
 
   </sect2>
-<!--
-  <sect2 id="limit-current-thread-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="limit-current-thread-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="limit-current-thread-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="limit-current-thread-muttrc">
     <title>Muttrc</title>
@@ -10728,7 +11017,7 @@ bind index &lt;esc&gt;L limit-current-thread
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10742,6 +11031,12 @@ bind index &lt;esc&gt;L limit-current-thread
       Mutt's header cache (hcache). It is enabled at configure time with
       the <emphasis>--with-lmdb=&lt;path&gt;</emphasis> switch.
     </para>
+
+    <note>
+      <para>
+        It is not recommended to store the lmdb database on a shared drive.
+      </para>
+    </note>
   </sect2>
 
   <sect2 id="lmdb-see-also">
@@ -10782,7 +11077,7 @@ bind index &lt;esc&gt;L limit-current-thread
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10848,7 +11143,7 @@ bind index &lt;esc&gt;L limit-current-thread
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -10974,28 +11269,6 @@ else
     </para>
   </sect2>
 
-<!--
-  <sect2 id="nested-if-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="nested-if-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="nested-if-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="nested-if-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="nested-if-muttrc">
     <title>Muttrc</title>
 <screen>
@@ -11068,7 +11341,7 @@ set index_format='%4C %Z %{%b %d} %-25.25n %&lt;M?[%M] %s&amp;%s%* %&lt;l?%l&amp
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -11210,7 +11483,7 @@ set new_mail_command = ""
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -11415,7 +11688,7 @@ set new_mail_command = ""
             <entry>edit the X-Comment-To field</entry>
           </row>
           <row>
-            <entry>attachment,index,pager</entry>
+            <entry>attach,index,pager</entry>
             <entry><literal>&lt;followup-message&gt;</literal></entry>
             <entry>followup to newsgroup</entry>
           </row>
@@ -11460,7 +11733,7 @@ set new_mail_command = ""
             <entry>open a different newsgroup in read only mode</entry>
           </row>
           <row>
-            <entry>attachment,index,pager</entry>
+            <entry>attach,index,pager</entry>
             <entry><literal>&lt;forward-to-group&gt;</literal></entry>
             <entry>forward to newsgroup</entry>
           </row>
@@ -11488,20 +11761,6 @@ set new_mail_command = ""
       </tgroup>
     </table>
   </sect2>
-
-<!--
-  <sect2 id="nntp-commands">
-    <title>Commands</title>
-  </sect2>
-
-  <sect2 id="nntp-colors">
-    <title>Colors</title>
-  </sect2>
-
-  <sect2 id="nntp-sort">
-    <title>Sort</title>
-  </sect2>
--->
 
   <sect2 id="nntp-muttrc">
     <title>Muttrc</title>
@@ -11557,7 +11816,7 @@ bind compose N edit-newsgroups
 bind compose x edit-x-comment-to 
 
 <emphasis role="comment"># followup to newsgroup</emphasis>
-bind attachment,index,pager F followup-message 
+bind attach,index,pager F followup-message 
 
 <emphasis role="comment"># post message to newsgroup</emphasis>
 bind index,pager P post-message 
@@ -11584,7 +11843,7 @@ bind browser U unsubscribe-pattern
 bind index,pager \ei change-newsgroup-readonly 
 
 <emphasis role="comment"># forward to newsgroup</emphasis>
-bind attachment,index,pager \eF forward-to-group 
+bind attach,index,pager \eF forward-to-group 
 
 <emphasis role="comment"># get all children of the current message</emphasis>
 # bind index ??? get-children 
@@ -11645,8 +11904,7 @@ bind index \CG get-message
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
-      <listitem><para><link linkend="sidebar">sidebar patch</link></para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
       <listitem><para><link linkend="quasi-delete">quasi-delete patch</link></para></listitem>
       <listitem><para><link linkend="index-color">index-color patch</link></para></listitem>
       <listitem><para>Notmuch libraries</para></listitem>
@@ -11766,6 +12024,69 @@ virtual-mailboxes "My INBOX" "notmuch://?query=tag:inbox"
       </para>
     </sect3>
 
+    <sect3 id="notmuch-vfolder-format">
+      <title>Format String for the NotMuch Browser</title>
+
+        <para>
+          Default: <literallayout><literal>%2C %?n?%4n/&amp;     ?%4m %f</literal></literallayout>
+        </para>
+
+        <para>
+          This variable allows you to customize the browser display to your personal taste.
+          This string is similar to <link linkend="index-format">$index_format</link>, but has
+          its own set of <literal>printf(3)</literal>-like sequences:
+        </para>
+
+        <informaltable>
+          <tgroup cols="2">
+            <tbody>
+              <row>
+                <entry>%C</entry>
+                <entry>current file number</entry>
+              </row>
+              <row>
+                <entry>%f</entry>
+                <entry>folder name (description)</entry>
+              </row>
+              <row>
+                <entry>%m</entry>
+                <entry>number of messages in the mailbox *</entry>
+              </row>
+              <row>
+                <entry>%n</entry>
+                <entry>number of unread messages in the mailbox *</entry>
+              </row>
+              <row>
+                <entry>%N</entry>
+                <entry>N if mailbox has new mail, blank otherwise</entry>
+              </row>
+              <row>
+                <entry>%&gt;X</entry>
+                <entry>right justify the rest of the string and pad with character 
+                <quote>X</quote></entry>
+              </row>
+              <row>
+                <entry>%|X</entry>
+                <entry>pad to the end of the line with character 
+                <quote>X</quote></entry>
+              </row>
+              <row>
+                <entry>%*X</entry>
+                <entry>soft-fill with character 
+                <quote>X</quote>as pad</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </informaltable>
+
+        <para>
+        For an explanation of <quote>soft-fill</quote>, see the <link linkend="index-format">$index_format</link> documentation.
+        </para>
+
+        <para>
+        * = can be optionally printed if nonzero
+        </para>
+    </sect3>
   </sect2>
 
   <sect2 id="notmuch-variables">
@@ -11982,12 +12303,6 @@ virtual-mailboxes "My INBOX" "notmuch://?query=tag:inbox"
     </table>
   </sect2>
 
-<!--
-  <sect2 id="notmuch-sort">
-    <title>Sort</title>
-  </sect2>
--->
-
   <sect2 id="notmuch-muttrc">
     <title>Muttrc</title>
 
@@ -12016,8 +12331,8 @@ set nm_hidden_tags = "unread,draft,flagged,passed,replied,attachment,signed,encr
 <emphasis role="comment"># This option specifies timeout for Notmuch database. Default is 5 seconds.</emphasis>
 set nm_open_timeout = 5
  
-<emphasis role="comment"># This variable specifies notmuch query type, supported types: 'threads' and</emphasis>
-# 'messages'.
+<emphasis role="comment"># This variable specifies notmuch query type, supported types: 'threads' and
+# 'messages'.</emphasis>
 set nm_query_type = messages
  
 <emphasis role="comment"># Add messages stored to the mutt record (see $record in the mutt docs)
@@ -12032,7 +12347,7 @@ set nm_unread_tag = unread
  
 <emphasis role="comment"># This variable allows you to customize the file browser display for virtual
 # folders to your personal taste.</emphasis>
-set vfolder_format = "%6n(%6N) %f"
+set vfolder_format = "%2C %?n?%4n/&amp;     ?%4m %N %f"
  
 <emphasis role="comment"># When set, mutt will use the first virtual mailbox (see virtual-mailboxes)
 # as a spoolfile.</emphasis>
@@ -12049,7 +12364,7 @@ bind index,pager X change-vfolder
 bind index,pager + entire-thread 
  
 <emphasis role="comment"># modify (notmuch) tags</emphasis>
-bind index,pager ` modify-labels 
+bind index,pager \` modify-labels 
  
 <emphasis role="comment"># generate virtual folder from query</emphasis>
 bind index,pager \eX vfolder-from-query 
@@ -12169,7 +12484,7 @@ color index_tags green default
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -12183,23 +12498,6 @@ color index_tags green default
     tasks, such as indexing a large folder over the net.
         </para>
   </sect2>
-
-<!--
-  <sect2 id="progress-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="progress-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="progress-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="progress-colors">
     <title>Colors</title>
@@ -12223,13 +12521,6 @@ color index_tags green default
       </tgroup>
     </table>
   </sect2>
-
-<!--
-  <sect2 id="progress-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="progress-muttrc">
     <title>Muttrc</title>
@@ -12288,7 +12579,7 @@ color progress white red
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -12307,13 +12598,6 @@ color progress white red
     the notmuch plugin.
         </para>
   </sect2>
-
-<!--
-  <sect2 id="quasi-delete-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="quasi-delete-functions">
     <title>Functions</title>
@@ -12339,23 +12623,6 @@ color progress white red
       </tgroup>
     </table>
   </sect2>
-
-<!--
-  <sect2 id="quasi-delete-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="quasi-delete-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="quasi-delete-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="quasi-delete-muttrc">
     <title>Muttrc</title>
@@ -12393,6 +12660,88 @@ bind index,pager Q quasi-delete
   </sect2>
 </sect1>
 
+<sect1 id="reply-with-xorig-patch">
+  <title>Reply With X-Original-To Patch</title>
+  <subtitle>Adds a configuration variable to allow direct reply to a mail using X-Original-To header
+      as a From: in the answer.
+  </subtitle>
+
+  <sect2 id="reply-with-xorig-patch2">
+    <title>Patch</title>
+
+    <para>
+      To check if Mutt supports <quote>Reply With X-Original-To</quote>, look for
+      <quote>patch-reply-with-xorig</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="reply-with-xorig-intro">
+    <title>Introduction</title>
+
+    <para>
+        Adds a reply_with_xorig for mutt configuration files. If enabled,
+        allows to reply to an email using the email address in the first X-Original-To:
+        header of a mail as the From: header of the answer.
+    </para>
+  </sect2>
+
+  <sect2 id="reply-with-xorig-variables">
+    <title>Variables</title>
+
+    <table id="table-reply-with-xorig-variables">
+      <title>Reply With X-Original-To Variables</title>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Name</entry>
+            <entry>Type</entry>
+            <entry>Default</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>reply_with_xorig</literal></entry>
+            <entry>Boolean</entry>
+            <entry><literal>no</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </sect2>
+
+  <sect2 id="reply-with-xorig-muttrc">
+    <title>Muttrc</title>
+<screen>
+<emphasis role="comment"># This is a complete list of reply-with-xorig-related configuration.
+ 
+# --------------------------------------------------------------------------
+# VARIABLES - shown with their default values
+# --------------------------------------------------------------------------
+ 
+# Use X-Original-To header to reply when reverse is disabled or no alternate
+# is found.</emphasis>
+set reply_with_xorig = "yes"
+ 
+<emphasis role="comment"># vim: syntax=muttrc</emphasis>
+</screen>
+  </sect2>
+
+  <sect2 id="reply-with-xorig-credits">
+    <title>Credits</title>
+    <itemizedlist>
+    <listitem><para>Pierre-Elliott Bécue <email>becue@crans.org</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
 <sect1 id="sidebar">
   <title>Sidebar Patch</title>
   <subtitle>Overview of mailboxes</subtitle>
@@ -12408,7 +12757,7 @@ bind index,pager Q quasi-delete
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -12478,6 +12827,11 @@ bind index,pager Q quasi-delete
           </row>
           <row>
             <entry><literal>sidebar_next_new_wrap</literal></entry>
+            <entry>boolean</entry>
+            <entry><literal>no</literal></entry>
+          </row>
+          <row>
+            <entry><literal>sidebar_on_right</literal></entry>
             <entry>boolean</entry>
             <entry><literal>no</literal></entry>
           </row>
@@ -12633,6 +12987,11 @@ bind index,pager Q quasi-delete
             <entry>Mailboxes containing new mail</entry>
           </row>
           <row>
+            <entry><literal>sidebar_ordinary</literal></entry>
+            <entry>default</entry>
+            <entry>Mailboxes that have no new/flagged mails, etc</entry>
+          </row>
+          <row>
             <entry><literal>sidebar_spoolfile</literal></entry>
             <entry>default</entry>
             <entry>Mailbox that receives incoming mail</entry>
@@ -12736,6 +13095,9 @@ sidebar_whitelist '/home/user/mailbox2'
 # around when it reaches the end of the list?</emphasis>
 set sidebar_next_new_wrap = no
  
+<emphasis role="comment"># Show the Sidebar on the right-hand side of the screen</emphasis>
+set sidebar_on_right = no
+ 
 <emphasis role="comment"># The character to use as the divider between the Sidebar and the other Mutt
 # panels.
 # Note: Only the first character of this string is used.</emphasis>
@@ -12809,6 +13171,9 @@ color sidebar_flagged red black
 <emphasis role="comment"># Color to give mailboxes containing new mail</emphasis>
 color sidebar_new green black
  
+<emphasis role="comment"># Color to give mailboxes containing no new/flagged mail, etc</emphasis>
+color sidebar_ordinary color245 default
+ 
 <emphasis role="comment"># --------------------------------------------------------------------------
  
 # vim: syntax=muttrc</emphasis>
@@ -12866,7 +13231,7 @@ color sidebar_new green black
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -12911,28 +13276,6 @@ color sidebar_new green black
     </table>
   </sect2>
 
-<!--
-  <sect2 id="skip-quoted-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="skip-quoted-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="skip-quoted-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="skip-quoted-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
-
   <sect2 id="skip-quoted-muttrc">
     <title>Muttrc</title>
 
@@ -12972,112 +13315,6 @@ set skip_quoted_offset = 3
   </sect2>
 </sect1>
 
-<sect1 id="smime-encrypt-self-patch">
-  <title>smime-encrypt-self Patch</title>
-  <subtitle>Save an self-encrypted copy of emails</subtitle>
-
-  <sect2 id="smime-encrypt-self-patch2">
-    <title>Patch</title>
-
-    <para>
-      To check if Mutt supports <quote>smime-encrypt-self</quote>, look for
-      <quote>patch-smime-encrypt-self</quote> in the mutt version.
-      See: <xref linkend="mutt-patches"/>.
-    </para>
-
-    <itemizedlist>
-      <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
-    </itemizedlist>
-
-    <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-intro">
-    <title>Introduction</title>
-
-    <para>
-      Once you encrypt an email to someone you cannot read it.  This is good
-      for security, but bad for record-keeping.  If you wanted to keep a copy
-      of an encrypted email you could set <link linkend="fcc-clear">$fcc_clear</link>.
-    </para>
-
-    <para>
-      A better option is to enable
-      <link linkend="smime-encrypt-self">$smime_encrypt_self</link>, then set
-      <link linkend="smime-default-key">$smime_default_key</link> to your
-      personal S/MIME key id.
-    </para>
-
-<screen>
-set smime_encrypt_self = yes
-set smime_default_key  = bb345e23.0
-</screen>
-
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-variables">
-    <title>Variables</title>
-
-    <table id="table-smime-encrypt-self-variables">
-      <title>smime-encrypt-self Variables</title>
-      <tgroup cols="3">
-        <thead>
-          <row>
-            <entry>Name</entry>
-            <entry>Type</entry>
-            <entry>Default</entry>
-          </row>
-        </thead>
-        <tbody>
-          <row>
-            <entry><literal>smime_encrypt_self</literal></entry>
-            <entry>quad</entry>
-            <entry>No</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-muttrc">
-    <title>Muttrc</title>
-<screen>
-<emphasis role="comment"># This is a complete list of smime-encrypt-self-related configuration.
- 
-# --------------------------------------------------------------------------
-# VARIABLES - shown with their default values
-# --------------------------------------------------------------------------
- 
-# Save a copy of outgoing email, encrypted to yourself</emphasis>
-set smime_encrypt_self = "no"
- 
-<emphasis role="comment"># vim: syntax=muttrc</emphasis>
-</screen>
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-see-also">
-    <title>See Also</title>
-
-    <itemizedlist>
-      <listitem><para><ulink url="http://www.neomutt.org/">NeoMutt Project</ulink></para></listitem>
-    </itemizedlist>
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-known-bugs">
-    <title>Known Bugs</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="smime-encrypt-self-credits">
-    <title>Credits</title>
-    <itemizedlist>
-    <listitem><para>Omen Wild <email>omen@mandarb.com</email></para></listitem>
-    <listitem><para>Richard Russon <email>rich@flatcap.org</email></para></listitem>
-    </itemizedlist>
-  </sect2>
-</sect1>
-
 <sect1 id="status-color">
   <title>Status Color Patch</title>
   <subtitle>Custom rules for theming the status bar</subtitle>
@@ -13093,7 +13330,7 @@ set smime_encrypt_self = "no"
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -13112,18 +13349,6 @@ set smime_encrypt_self = "no"
     take up to 2 extra parameters (regex, num).
         </para>
   </sect2>
-
-<!--
-  <sect2 id="status-color-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="status-color-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="status-color-commands">
     <title>Commands</title>
@@ -13189,13 +13414,6 @@ set smime_encrypt_self = "no"
       </tgroup>
     </table>
   </sect2>
-
-<!--
-  <sect2 id="status-color-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="status-color-muttrc">
     <title>Muttrc</title>
@@ -13296,7 +13514,7 @@ color status brightwhite default 'Mutt: ([^ ]+)' 1
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
     </itemizedlist>
 
     <para>This patch is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
@@ -13378,7 +13596,7 @@ timeout-hook . 'exec sync-mailbox'
 
     <itemizedlist>
       <title>Dependencies:</title>
-      <listitem><para>mutt-1.6.2</para></listitem>
+      <listitem><para>mutt-1.7.0</para></listitem>
       <listitem><para>OpenSSL</para></listitem>
     </itemizedlist>
 
@@ -13414,33 +13632,6 @@ timeout-hook . 'exec sync-mailbox'
 openssl s_client -host &lt;imap server&gt; -port &lt;port&gt; -tls1 -servername &lt;imap server&gt;
 </screen>
   </sect2>
-
-<!--
-  <sect2 id="tls-sni-variables">
-    <title>Variables</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="tls-sni-functions">
-    <title>Functions</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="tls-sni-commands">
-    <title>Commands</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="tls-sni-colors">
-    <title>Colors</title>
-    <para>None</para>
-  </sect2>
-
-  <sect2 id="tls-sni-sort">
-    <title>Sort</title>
-    <para>None</para>
-  </sect2>
--->
 
   <sect2 id="tls-sni-muttrc">
     <title>Muttrc</title>
