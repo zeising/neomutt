@@ -50,8 +50,6 @@ Known Bugs
 
     * Notifies about spurious new email when an email is saved, see Issue #20
           https://github.com/neomutt/neomutt/issues/20
-    * Will not notify about new e-mail if the pager is open, see Issue #19
-          https://github.com/neomutt/neomutt/issues/19
 
 Credits
 -------
