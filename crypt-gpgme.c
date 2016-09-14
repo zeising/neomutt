@@ -869,11 +869,13 @@ static void print_time(time_t t, STATE *s)
 {
   char p[STRING];
 
+  setlocale (LC_TIME, "");
 #ifdef HAVE_LANGINFO_D_T_FMT
   strftime (p, sizeof (p), nl_langinfo (D_T_FMT), localtime (&t));
 #else
   strftime (p, sizeof (p), "%c", localtime (&t));
 #endif
+  setlocale (LC_TIME, "C");
   state_attach_puts (p, s);
 }
 
@@ -2813,6 +2815,9 @@ static const char *crypt_entry_fmt (char *dest,
 	}
 	*p = 0;
 
+	if (do_locales && Locale)
+	  setlocale (LC_TIME, Locale);
+        
         {
 	  time_t tt = 0;
 
@@ -2821,13 +2826,11 @@ static const char *crypt_entry_fmt (char *dest,
 
           tm = localtime (&tt);
         }
+	strftime (buf2, sizeof (buf2), dest, tm);
 
-        if (!do_locales)
-          setlocale (LC_TIME, "C");
-        strftime (buf2, sizeof (buf2), dest, tm);
-        if (!do_locales)
-          setlocale (LC_TIME, "");
-
+	if (do_locales)
+	  setlocale (LC_TIME, "C");
+        
 	snprintf (fmt, sizeof (fmt), "%%%ss", prefix);
 	snprintf (dest, destlen, fmt, buf2);
 	if (len > 0)
@@ -3368,6 +3371,9 @@ static void print_key_info (gpgme_key_t key, FILE *fp)
   int i;
   gpgme_user_id_t uid = NULL;
 
+  if (Locale)
+    setlocale (LC_TIME, Locale);
+
   is_pgp = key->protocol == GPGME_PROTOCOL_OpenPGP;
 
   for (idx = 0, uid = key->uids; uid; idx++, uid = uid->next)
@@ -3607,6 +3613,9 @@ static void print_key_info (gpgme_key_t key, FILE *fp)
           putc ('\n', fp);
         }
     }
+
+  if (Locale)
+    setlocale (LC_TIME, "C");
 }
 
 
