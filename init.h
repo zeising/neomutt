@@ -299,6 +299,18 @@ struct option_t MuttVars[] = {
   ** in a reply.  For a full listing of defined \fCprintf(3)\fP-like sequences see
   ** the section on $$index_format.
   */
+  { "attribution_locale", DT_STR, R_NONE, UL &AttributionLocale, UL "" },
+  /*
+  ** .pp
+  ** The locale used by \fCstrftime(3)\fP to format dates in the
+  ** $attribution string.  Legal values are the strings your system
+  ** accepts for the locale environment variable \fC$$$LC_TIME\fP.
+  ** .pp
+  ** This variable is to allow the attribution date format to be
+  ** customized by recipient or folder using hooks.  By default, Mutt
+  ** will use your locale environment, so there is no need to set
+  ** this except to override that default.
+  */
   { "auto_tag",		DT_BOOL, R_NONE, OPTAUTOTAG, 0 },
   /*
   ** .pp
@@ -656,8 +668,8 @@ struct option_t MuttVars[] = {
   ** function to process the date, see the man page for the proper syntax.
   ** .pp
   ** Unless the first character in the string is a bang (``!''), the month
-  ** and week day names are expanded according to the locale specified in
-  ** the variable $$locale. If the first character in the string is a
+  ** and week day names are expanded according to the locale.
+  ** If the first character in the string is a
   ** bang, the bang is discarded, and the month and week day names in the
   ** rest of the string are expanded in the \fIC\fP locale (that is in US
   ** English).
@@ -1533,12 +1545,6 @@ struct option_t MuttVars[] = {
   ** If both ``$$keywords_legacy'' and
   ** ``$$keywords_standard'' are \fCfalse\fP, mutt will save keywords
   ** to legacy headers to ensure that it does not lose your labels.
-  */
-  { "locale",		DT_STR,  R_BOTH, UL &Locale, UL "C" },
-  /*
-  ** .pp
-  ** The locale used by \fCstrftime(3)\fP to format dates. Legal values are
-  ** the strings your system accepts for the locale environment variable \fC$$$LC_TIME\fP.
   */
   { "mail_check",	DT_NUM,  R_NONE, UL &BuffyTimeout, 5 },
   /*
@@ -3040,13 +3046,6 @@ struct option_t MuttVars[] = {
   */
 #endif
 #ifdef USE_SIDEBAR
-  { "sidebar_divider_char", DT_STR, R_SIDEBAR, UL &SidebarDividerChar, UL "|" },
-  /*
-  ** .pp
-  ** This specifies the characters to be drawn between the sidebar (when
-  ** visible) and the other Mutt panels. ASCII and Unicode line-drawing
-  ** characters are supported.
-  */
   { "sidebar_delim_chars", DT_STR, R_SIDEBAR, UL &SidebarDelimChars, UL "/." },
   /*
   ** .pp
@@ -3064,6 +3063,13 @@ struct option_t MuttVars[] = {
   ** .te
   ** .pp
   ** \fBSee also:\fP $$sidebar_short_path, $$sidebar_folder_indent, $$sidebar_indent_string.
+  */
+  { "sidebar_divider_char", DT_STR, R_SIDEBAR, UL &SidebarDividerChar, UL "|" },
+  /*
+  ** .pp
+  ** This specifies the characters to be drawn between the sidebar (when
+  ** visible) and the other Mutt panels. ASCII and Unicode line-drawing
+  ** characters are supported.
   */
   { "sidebar_folder_indent", DT_BOOL, R_SIDEBAR, OPTSIDEBARFOLDERINDENT, 0 },
   /*
@@ -4365,6 +4371,7 @@ const struct command_t Commands[] = {
   { "set",		parse_set,		0 },
 #ifdef USE_SIDEBAR
   { "sidebar_whitelist",parse_list,		UL &SidebarWhitelist },
+  { "unsidebar_whitelist",parse_unlist,		UL &SidebarWhitelist },
 #endif
   { "source",		parse_source,		0 },
   { "spam",		parse_spam_list,	MUTT_SPAM },

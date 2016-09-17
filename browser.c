@@ -274,11 +274,12 @@ folder_format_str (char *dest, size_t destlen, size_t col, int cols, char op, co
 	  tnow = time (NULL);
 	  t_fmt = tnow - folder->ff->mtime < 31536000 ? "%b %d %H:%M" : "%b %d  %Y";
 	}
-	if (do_locales)
-	  setlocale(LC_TIME, NONULL (Locale)); /* use environment if $locale is not set */
-	else
-	  setlocale(LC_TIME, "C");
-	strftime (date, sizeof (date), t_fmt, localtime (&folder->ff->mtime));
+
+        if (!do_locales)
+          setlocale (LC_TIME, "C");
+        strftime (date, sizeof (date), t_fmt, localtime (&folder->ff->mtime));
+        if (!do_locales)
+          setlocale (LC_TIME, "");
 
 	mutt_format_s (dest, destlen, fmt, date);
       }
@@ -1128,11 +1129,14 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
        * This code is executed only when we list files, not when
        * we press up/down keys to navigate in a displayed list.
        *
+       * We only do this when CurrentFolder has been set (ie, not
+       * when listing folders on startup with "mutt -y").
+       *
        * This tracker is only used when browser_track is true,
        * meaning only with sort methods SUBJECT/DESC for now.
        */
-      if ((!LastDir[0]) ||
-           (mutt_strcmp (CurrentFolder, OldLastDir) != 0))
+      if (CurrentFolder && ((!LastDir[0]) ||
+           (mutt_strcmp (CurrentFolder, OldLastDir) != 0)))
       {
         mutt_browser_select_dir (CurrentFolder);
       }

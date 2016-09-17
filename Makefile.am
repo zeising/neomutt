@@ -18,6 +18,8 @@ if BUILD_HCACHE
 HCVERSION = hcversion.h
 endif
 
+distdir = neo$(PACKAGE)-$(VERSION)
+
 BUILT_SOURCES = keymap_defs.h patchlist.c oldmutt_ver.h conststrings.c hcachever.sh $(HCVERSION) $(top_srcdir)/.version
 
 bin_PROGRAMS = mutt $(DOTLOCK_TARGET) $(PGPAUX_TARGET)
@@ -71,7 +73,7 @@ EXTRA_DIST = COPYRIGHT GPL OPS OPS.PGP OPS.CRYPT OPS.SMIME TODO UPDATING \
 	nntp.h ChangeLog.nntp \
 	_regex.h OPS.MIX README.SECURITY remailer.c remailer.h browser.h \
 	mbyte.h lib.h extlib.c pgpewrap.c smime_keys.pl pgplib.h \
-	README.SSL README.md README.neomutt smime.h group.h \
+	README.SSL README.md README.neomutt README.notmuch smime.h group.h \
 	pgppacket.h depcomp ascii.h PATCHES patchlist.sh \
 	ChangeLog ChangeLog.neomutt mutt_idna.h sidebar.h OPS.SIDEBAR \
 	snprintf.c regex.c crypt-gpgme.h hcachever.sh.in \
