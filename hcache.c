@@ -1093,7 +1093,7 @@ mutt_hcache_delete(header_cache_t *h, const char *filename,
 
 #elif HAVE_KC
 static int
-hcache_open_kc (struct header_cache* h, const char* path)
+hcache_open_kc (struct header_cache *h, const char *path)
 {
   char kcdbpath[_POSIX_PATH_MAX];
   int printfresult;
@@ -1101,7 +1101,7 @@ hcache_open_kc (struct header_cache* h, const char* path)
   printfresult = snprintf(kcdbpath, sizeof(kcdbpath),
                           "%s#type=kct#opts=%s#rcomp=lex",
                           path, option(OPTHCACHECOMPRESS) ? "lc" : "l");
-  if (printfresult < 0 || printfresult >= sizeof(kcdbpath)) {
+  if ((printfresult < 0) || (printfresult >= sizeof(kcdbpath))) {
     return -1;
   }
 
@@ -1534,13 +1534,11 @@ const char *mutt_hcache_backend (void)
 #elif HAVE_KC
 const char *mutt_hcache_backend (void)
 {
-  /* 128 should be more than enough for KCVERSION */
-  static int initialized = 0;
-  static char version_cache[12 + 1 + 128];
-  if (!initialized) {
+  /* SHORT_STRING(128) should be more than enough for KCVERSION */
+  static char version_cache[SHORT_STRING] = "";
+  if (!version_cache[0])
     snprintf(version_cache, sizeof(version_cache), "kyotocabinet %s", KCVERSION);
-    initialized = 1;
-  }
+
   return version_cache;
 }
 #endif
