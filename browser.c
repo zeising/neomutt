@@ -882,6 +882,25 @@ static void vfolder_entry (char *s, size_t slen, MUTTMENU *menu, int num)
 }
 #endif
 
+/* Public function
+ *
+ * This function takes a menu and a state and defines the current
+ * entry that should be highlighted.
+ */
+void mutt_browser_highlight_default (struct browser_state *state, MUTTMENU *menu)
+{
+  menu->top = 0;
+  /* Reset menu position to 1.
+   * We do not risk overflow as the init_menu function changes
+   * current if it is bigger than state->entrylen.
+   */
+  if ((mutt_strcmp (state->entry[0].desc, "..")  == 0) ||
+      (mutt_strcmp (state->entry[0].desc, "../") == 0))
+    menu->current = 1;
+  else
+    menu->current = 0;
+}
+
 static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
 		       size_t titlelen, int buffy)
 {
@@ -955,9 +974,10 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
     }
     else
     {
-      if ((mutt_strcmp (state->entry[0].desc, "..")  == 0) ||
-          (mutt_strcmp (state->entry[0].desc, "../") == 0))
-	menu->current = 1;
+      /* mutt_browser_highlight_default should be called before init_menu, but
+       * to be safe, we recall it there
+       */
+      mutt_browser_highlight_default (state, menu);
     }
     snprintf (title, titlelen, _("Directory [%s], File mask: %s"),
 	      path, NONULL(Mask.pattern));
@@ -1135,10 +1155,30 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
        * This tracker is only used when browser_track is true,
        * meaning only with sort methods SUBJECT/DESC for now.
        */
-      if (CurrentFolder && ((!LastDir[0]) ||
-           (mutt_strcmp (CurrentFolder, OldLastDir) != 0)))
+      if (CurrentFolder)
       {
-        mutt_browser_select_dir (CurrentFolder);
+        if (!LastDir[0])
+        {
+          /* If browsing in "local"-mode, than we chose to define LastDir to
+           * MailDir
+           */
+          switch (mx_get_magic (CurrentFolder))
+          {
+            case MUTT_MBOX:
+            case MUTT_MMDF:
+            case MUTT_MH:
+            case MUTT_MAILDIR:
+              strfcpy (LastDir, NONULL(CurrentFolder), sizeof (LastDir));
+              break;
+            default:
+              mutt_browser_select_dir (CurrentFolder);
+              break;
+          }
+        }
+        else if (mutt_strcmp (CurrentFolder, OldLastDir) != 0)
+        {
+          mutt_browser_select_dir (CurrentFolder);
+        }
       }
 
       /* When browser tracking feature is disabled, shoot a 0
@@ -1337,8 +1377,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 		goto bail;
 	      }
 	    }
-	    menu->current = 0; 
-	    menu->top = 0; 
+            mutt_browser_highlight_default (&state, menu);
 	    init_menu (&state, menu, title, sizeof (title), buffy);
 	    break;
 	  }
@@ -1436,8 +1475,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 	  imap_browse (LastDir, &state);
 	  browser_sort (&state);
 	  menu->data = state.entry;
-	  menu->current = 0; 
-	  menu->top = 0; 
+          mutt_browser_highlight_default (&state, menu);
 	  init_menu (&state, menu, title, sizeof (title), buffy);
 	  MAYBE_REDRAW (menu->redraw);
 	}
@@ -1459,8 +1497,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 	    imap_browse (LastDir, &state);
 	    browser_sort (&state);
 	    menu->data = state.entry;
-	    menu->current = 0;
-	    menu->top = 0;
+            mutt_browser_highlight_default (&state, menu);
 	    init_menu (&state, menu, title, sizeof (title), buffy);
 	    MAYBE_REDRAW (menu->redraw);
 	  }
@@ -1543,8 +1580,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 	    imap_browse (LastDir, &state);
 	    browser_sort (&state);
 	    menu->data = state.entry;
-	    menu->current = 0; 
-	    menu->top = 0; 
+            mutt_browser_highlight_default (&state, menu);
 	    init_menu (&state, menu, title, sizeof (title), buffy);
 	  }
 	  else
@@ -1574,8 +1610,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 		    goto bail;
 		  }
 		}
-		menu->current = 0;
-		menu->top = 0;
+                mutt_browser_highlight_default (&state, menu);
 		init_menu (&state, menu, title, sizeof (title), buffy);
 	      }
 	      else
@@ -1704,12 +1739,7 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 	  {
 	    BrowserSort |= reverse ? SORT_REVERSE : 0;
 	    browser_sort (&state);
-
-            /* Reset menu position to 1.
-             * We do not risk overflow as the init_menu function changes
-             * current if it is bigger than state->entrylen.
-             */
-            menu->current = 1;
+            mutt_browser_highlight_default (&state, menu);
 	    menu->redraw = REDRAW_FULL;
 	  }
 	  break;
