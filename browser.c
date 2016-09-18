@@ -1168,7 +1168,10 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
             case MUTT_MMDF:
             case MUTT_MH:
             case MUTT_MAILDIR:
-              strfcpy (LastDir, NONULL(CurrentFolder), sizeof (LastDir));
+              if (Spoolfile)
+                mutt_browser_select_dir (Spoolfile);
+              else if (Maildir)
+                strfcpy (LastDir, NONULL(Maildir), sizeof (LastDir));
               break;
             default:
               mutt_browser_select_dir (CurrentFolder);
