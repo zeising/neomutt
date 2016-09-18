@@ -10784,9 +10784,9 @@ bind index,pager y edit-label
       To check if Mutt supports Kyoto Cabinet, look for
 
       <itemizedlist>
-        <listitem><quote>patch-kyoto</quote> in the mutt version. See: <xref linkend="mutt-patches"/>.</listitem>
-        <listitem><quote>+USE_HCACHE</quote> in the compile options</listitem>
-        <listitem><quote>hcache backend: kyotocabinet</quote> in the mutt version</listitem>
+        <listitem><para><quote>patch-kyoto</quote> in the mutt version. See: <xref linkend="mutt-patches"/>.</para></listitem>
+        <listitem><para><quote>+USE_HCACHE</quote> in the compile options</para></listitem>
+        <listitem><para><quote>hcache backend: kyotocabinet</quote> in the mutt version</para></listitem>
       </itemizedlist>
     </para>
 
