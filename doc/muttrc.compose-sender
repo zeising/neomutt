@@ -1,0 +1,13 @@
+# Example NeoMutt config file for the compose-sender feature.
+
+# --------------------------------------------------------------------------
+# FUNCTIONS - shown with an example mapping
+# --------------------------------------------------------------------------
+
+# open a different virtual folder
+bind index,pager @ compose-sender
+
+
+# --------------------------------------------------------------------------
+
+# vim: syntax=muttrc

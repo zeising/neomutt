@@ -9047,6 +9047,98 @@ color   attach_headers     brightmagenta   default        &quot;invalid node wit
   </sect2>
 </sect1>
 
+<sect1 id="compose-sender">
+  <title>compose-sender Feature</title>
+  <subtitle>Send new mail to the sender of the current mail</subtitle>
+
+  <sect2 id="compose-sender-support">
+    <title>Support</title>
+
+    <para>
+      To check if Mutt supports <quote>compose-sender</quote>, look for
+      <quote>patch-compose-sender</quote> in the mutt version.
+      See: <xref linkend="mutt-patches"/>.
+    </para>
+
+    <itemizedlist>
+      <title>Dependencies:</title>
+      <listitem><para>mutt-1.7.0</para></listitem>
+    </itemizedlist>
+
+    <para>This feature is part of the <ulink url="http://www.neomutt.org/">NeoMutt Project</ulink>.</para>
+  </sect2>
+
+  <sect2 id="compose-sender-intro">
+    <title>Introduction</title>
+
+    <para>
+      The compose-sender patch adds a new command to start composing an email the sender of the current message. It works on tagged messages too, sending one email to all of the senders of the tagged messages.
+    </para>
+  </sect2>
+
+  <sect2 id="compose-sender-functions">
+    <title>Functions</title>
+
+    <para>
+      compose-sender adds the following functions to Mutt.
+      By default, none of them are bound to keys.
+    </para>
+
+    <table id="table-compose-sender-functions">
+      <title>compose-sender Functions</title>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>Menus</entry>
+            <entry>Function</entry>
+            <entry>Description</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>index,pager</entry>
+            <entry><literal>&lt;compose-sender&gt;</literal></entry>
+            <entry>compose a new email to the sender of the current email</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </sect2>
+
+  <sect2 id="compose-sender-muttrc">
+    <title>Muttrc</title>
+<screen>
+<emphasis role="comment"># Example NeoMutt config file for the compose-sender feature.
+
+# --------------------------------------------------------------------------
+# FUNCTIONS - shown with an example mapping
+# --------------------------------------------------------------------------
+
+# open a different virtual folder</emphasis>
+bind index,pager @ compose-sender
+
+
+<emphasis role="comment"># --------------------------------------------------------------------------
+
+# vim: syntax=muttrc</emphasis>
+</screen>
+  </sect2>
+
+  <sect2 id="compose-sender-known-bugs">
+    <title>Known Bugs</title>
+    <para>None</para>
+  </sect2>
+
+  <sect2 id="compose-sender-credits">
+    <title>Credits</title>
+    <itemizedlist>
+    <listitem><para>Brian Medley</para></listitem>
+    <listitem><para>Guillaume Brogi <email>gui-gui@netcourrier.com</email></para></listitem>
+    </itemizedlist>
+  </sect2>
+</sect1>
+
+
 <sect1 id="compress">
   <title>Compressed Folders Feature</title>
   <subtitle>Read from/write to compressed mailboxes</subtitle>
