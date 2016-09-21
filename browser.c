@@ -928,27 +928,21 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
   }
   else
 #endif
-  if (buffy)
   {
-    menu->is_mailbox_list = 1;
-    snprintf (title, titlelen, _("Mailboxes [%d]"), mutt_buffy_check (0));
-  }
-  else
-  {
-    menu->is_mailbox_list = 0;
-    strfcpy (path, LastDir, sizeof (path));
-    mutt_pretty_mailbox (path, sizeof (path));
-
     /* Browser tracking feature.
      * The goal is to highlight the good directory if LastDir is the parent dir
-     * of OldLastDir (this occurs mostly when one hit "../").
+     * of OldLastDir (this occurs mostly when one hit "../"). It should also work
+     * properly when the user is in examine_mailboxes-mode.
      */
     int ldlen = mutt_strlen (LastDir);
     if ((ldlen > 0) && (mutt_strncmp (LastDir, OldLastDir, ldlen) == 0))
     {
       char TargetDir[_POSIX_PATH_MAX] = "";
+
 #ifdef USE_IMAP
-      if (state->imap_browse)
+      /* Use mx_is_imap to check what kind of dir is OldLastDir.
+       */
+      if (mx_is_imap (OldLastDir))
       {
         strfcpy (TargetDir, OldLastDir, sizeof (TargetDir));
         imap_clean_path (TargetDir, sizeof (TargetDir));
@@ -968,20 +962,26 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
         if (mutt_strcmp (state->entry[i].name, TargetDir) == 0)
         {
           menu->current = i;
-	  break;
+          break;
         }
       }
     }
+
+    if (buffy)
+    {
+      menu->is_mailbox_list = 1;
+      snprintf (title, titlelen, _("Mailboxes [%d]"), mutt_buffy_check (0));
+    }
     else
     {
-      /* mutt_browser_highlight_default should be called before init_menu, but
-       * to be safe, we recall it there
-       */
-      mutt_browser_highlight_default (state, menu);
+      menu->is_mailbox_list = 0;
+      strfcpy (path, LastDir, sizeof (path));
+      mutt_pretty_mailbox (path, sizeof (path));
+      snprintf (title, titlelen, _("Directory [%s], File mask: %s"),
+               path, NONULL(Mask.pattern));
     }
-    snprintf (title, titlelen, _("Directory [%s], File mask: %s"),
-	      path, NONULL(Mask.pattern));
   }
+
   menu->redraw = REDRAW_FULL;
 }
 
