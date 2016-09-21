@@ -929,44 +929,6 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
   else
 #endif
   {
-    /* Browser tracking feature.
-     * The goal is to highlight the good directory if LastDir is the parent dir
-     * of OldLastDir (this occurs mostly when one hit "../"). It should also work
-     * properly when the user is in examine_mailboxes-mode.
-     */
-    int ldlen = mutt_strlen (LastDir);
-    if ((ldlen > 0) && (mutt_strncmp (LastDir, OldLastDir, ldlen) == 0))
-    {
-      char TargetDir[_POSIX_PATH_MAX] = "";
-
-#ifdef USE_IMAP
-      /* Use mx_is_imap to check what kind of dir is OldLastDir.
-       */
-      if (mx_is_imap (OldLastDir))
-      {
-        strfcpy (TargetDir, OldLastDir, sizeof (TargetDir));
-        imap_clean_path (TargetDir, sizeof (TargetDir));
-      }
-      else
-#endif
-        strfcpy (TargetDir,
-                strrchr (OldLastDir, '/') + 1,
-                sizeof (TargetDir));
-
-      /* If we get here, it means that LastDir is the parent directory of
-       * OldLastDir.  I.e., we're returning from a subdirectory, and we want
-       * to position the cursor on the directory we're returning from. */
-      int i;
-      for (i = 0; i < state->entrylen; i++)
-      {
-        if (mutt_strcmp (state->entry[i].name, TargetDir) == 0)
-        {
-          menu->current = i;
-          break;
-        }
-      }
-    }
-
     if (buffy)
     {
       menu->is_mailbox_list = 1;
@@ -981,6 +943,49 @@ static void init_menu (struct browser_state *state, MUTTMENU *menu, char *title,
                path, NONULL(Mask.pattern));
     }
   }
+
+  /* Browser tracking feature.
+   * The goal is to highlight the good directory if LastDir is the parent dir
+   * of OldLastDir (this occurs mostly when one hit "../"). It should also work
+   * properly when the user is in examine_mailboxes-mode.
+   */
+  int ldlen = mutt_strlen (LastDir);
+  if ((ldlen > 0) && (mutt_strncmp (LastDir, OldLastDir, ldlen) == 0))
+  {
+    char TargetDir[_POSIX_PATH_MAX] = "";
+
+#ifdef USE_IMAP
+    /* Use mx_is_imap to check what kind of dir is OldLastDir.
+     */
+    if (mx_is_imap (OldLastDir))
+    {
+      strfcpy (TargetDir, OldLastDir, sizeof (TargetDir));
+      imap_clean_path (TargetDir, sizeof (TargetDir));
+    }
+    else
+#endif
+      strfcpy (TargetDir,
+              strrchr (OldLastDir, '/') + 1,
+              sizeof (TargetDir));
+
+    /* If we get here, it means that LastDir is the parent directory of
+     * OldLastDir.  I.e., we're returning from a subdirectory, and we want
+     * to position the cursor on the directory we're returning from. */
+    unsigned int i, matched = 0;
+    for (i = 0; i < state->entrylen; i++)
+    {
+      if (mutt_strcmp (state->entry[i].name, TargetDir) == 0)
+      {
+        menu->current = i;
+        matched = 1;
+        break;
+      }
+    }
+    if (!matched)
+      mutt_browser_highlight_default(state, menu);
+  }
+  else
+    mutt_browser_highlight_default(state, menu);
 
   menu->redraw = REDRAW_FULL;
 }
