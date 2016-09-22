@@ -1037,6 +1037,11 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
   int folder   = (flags & MUTT_SEL_FOLDER) ? 1 : 0;
   int buffy    = (flags & MUTT_SEL_BUFFY)  ? 1 : 0;
 
+  /* Keeps in memory the directory we were in when hitting '='
+   * to go directly to $folder (Maildir)
+   */
+  char GotoSwapper[_POSIX_PATH_MAX] = "";
+
   buffy = buffy && folder;
   
   memset (&state, 0, sizeof (struct browser_state));
@@ -1387,6 +1392,8 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
 	    }
             mutt_browser_highlight_default (&state, menu);
 	    init_menu (&state, menu, title, sizeof (title), buffy);
+            if (GotoSwapper[0])
+              GotoSwapper[0] = '\0';
 	    break;
 	  }
 	}
@@ -1756,7 +1763,32 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
       case OP_TOGGLE_MAILBOXES:
 	buffy = 1 - buffy;
 
+      case OP_BROWSER_GOTO_FOLDER:
       case OP_CHECK_NEW:
+        if (i == OP_BROWSER_GOTO_FOLDER)
+        {
+          /* When in mailboxes mode, disables this feature */
+          if (Maildir)
+          {
+            dprint(5, (debugfile, "= hit! Maildir: %s, LastDir: %s\n", Maildir, LastDir));
+            if (!GotoSwapper[0])
+            {
+              if (mutt_strcmp (LastDir, Maildir) != 0)
+              {
+                /* Stores into GotoSwapper LastDir, and swaps to Maildir */
+                strfcpy (GotoSwapper, LastDir, sizeof (GotoSwapper));
+                strfcpy (OldLastDir, LastDir, sizeof (OldLastDir));
+                strfcpy (LastDir, Maildir, sizeof (LastDir));
+              }
+            }
+            else
+            {
+              strfcpy (OldLastDir, LastDir, sizeof (OldLastDir));
+              strfcpy (LastDir, GotoSwapper, sizeof (LastDir));
+              GotoSwapper[0] = '\0';
+            }
+          }
+        }
 	destroy_state (&state);
 	prefix[0] = 0;
 	killPrefix = 0;
@@ -2048,5 +2080,6 @@ void _mutt_select_file (char *f, size_t flen, int flags, char ***files, int *num
   
   if (!folder)
     strfcpy (LastDir, LastDirBackup, sizeof (LastDir));
-  
+  if (GotoSwapper[0])
+    GotoSwapper[0] = '\0';
 }
