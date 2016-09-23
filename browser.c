@@ -52,6 +52,7 @@
 static const struct mapping_t FolderHelp[] = {
   { N_("Exit"),  OP_EXIT },
   { N_("Chdir"), OP_CHANGE_DIRECTORY },
+  { N_("Goto"),  OP_BROWSER_GOTO_FOLDER },
   { N_("Mask"),  OP_ENTER_MASK },
   { N_("Help"),  OP_HELP },
   { NULL,	 0 }
